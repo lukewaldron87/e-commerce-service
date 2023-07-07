@@ -31,6 +31,7 @@ class ProductRepositoryTest {
                 .verifyComplete();
     }
 
+    //todo add test for delete
     /*@Test
     public void whenDeleteAll_then0IsExpected() {
         playerRepository.deleteAll()

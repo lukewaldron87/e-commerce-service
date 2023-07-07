@@ -2,8 +2,11 @@ package com.waldron.ecommerceservice.service;
 
 import com.waldron.ecommerceservice.entity.Product;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public interface ProductService {
 
-    public Flux<Product> getProducts();
+    Flux<Product> getProducts();
+
+    Mono<Product> createProduct(Product product);
 }

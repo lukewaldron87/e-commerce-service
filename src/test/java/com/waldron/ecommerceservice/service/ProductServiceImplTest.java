@@ -4,6 +4,7 @@ import com.waldron.ecommerceservice.entity.Product;
 import com.waldron.ecommerceservice.repository.ProductRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.math.BigDecimal;
@@ -19,7 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 class ProductServiceImplTest {
@@ -52,17 +54,46 @@ class ProductServiceImplTest {
 
         when(productRepository.findAll()).thenReturn(expectedProductFlux);
 
-        Flux<Product> productFlux = productService.getProducts();
+        Flux<Product> returnedProductFlux = productService.getProducts();
 
-        StepVerifier
-                .create(productFlux)
-                .consumeNextWith(product -> {
-                    assertEquals(product, product1);
-                })
-                .consumeNextWith(product -> {
-                    assertEquals(product, product2);
-                })
+        StepVerifier.create(returnedProductFlux)
+                .expectNext(product1)
+                .expectNext(product2)
                 .verifyComplete();
+    }
+
+    @Test
+    public void createProduct_should_passNewProductToRepository(){
+        Product product = Product.builder()
+                .name("Book 1")
+                .price(BigDecimal.valueOf(19.99))
+                .build();
+
+        productService.createProduct(product);
+
+        ArgumentCaptor<Product> argumentCaptor = ArgumentCaptor.forClass(Product.class);
+        verify(productRepository).save(argumentCaptor.capture());
+
+        assertEquals(product, argumentCaptor.getValue());
+    }
+
+    @Test
+    public void createProduct_should_returnCreatedProduct(){
+        Product newProduct = Product.builder()
+                .name("Book 1")
+                .price(BigDecimal.valueOf(19.99))
+                .build();
+
+        Mono<Product> productMono = Mono.just(newProduct);
+
+        when(productRepository.save(newProduct)).thenReturn(productMono);
+
+        Mono<Product> returnedProduct = productService.createProduct(newProduct);
+
+        StepVerifier.create(returnedProduct)
+                .expectNext(newProduct)
+                .verifyComplete();
+
     }
 
 }
