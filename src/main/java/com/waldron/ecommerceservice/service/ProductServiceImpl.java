@@ -25,5 +25,10 @@ public class ProductServiceImpl implements ProductService{
 
     //todo updateProduct
 
-    //todo deleteProductById
+    @Override
+    public Mono<Void> deleteProductById(Long productId) {
+        //return productRepository.deleteById(productId);
+        return productRepository.findById(productId)
+                .flatMap(productRepository::delete);
+    }
 }

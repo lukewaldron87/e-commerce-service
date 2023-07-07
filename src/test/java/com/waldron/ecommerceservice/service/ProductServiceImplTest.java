@@ -83,4 +83,29 @@ class ProductServiceImplTest {
 
     }
 
+    @Test
+    public void deleteProductById_should_passProductToRepository_whenProductExists(){
+        Long productId = 1L;
+
+        Product product = Product.builder()
+                .id(1L)
+                .name("Book 1")
+                .price(BigDecimal.valueOf(19.99))
+                .build();
+
+        Mono<Product> productMono = Mono.just(product);
+
+        when((productRepository.findById(productId))).thenReturn(productMono);
+
+        productService.deleteProductById(productId);
+
+        //todo this is finding the interaction with productRepository.findById not productRepository::delete
+        ArgumentCaptor<Product> argumentCaptor = ArgumentCaptor.forClass(Product.class);
+        verify(productRepository).delete(argumentCaptor.capture());
+        assertEquals(product, argumentCaptor.getValue());
+    }
+
+    //todo add test for product exists
+
+    //todo add test for return Mono<Void>
 }

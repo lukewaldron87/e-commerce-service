@@ -9,4 +9,6 @@ public interface ProductService {
     Flux<Product> getProducts();
 
     Mono<Product> createProduct(Product product);
+
+    Mono<Void> deleteProductById(Long productId);
 }

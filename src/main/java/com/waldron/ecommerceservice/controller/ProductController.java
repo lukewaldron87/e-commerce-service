@@ -53,5 +53,9 @@ public class ProductController {
 
     //todo PUT updateProduct(Product)
 
-    //todo DELETE deleteProduct(Long id)
+    //todo DELETE deleteProduct(Long id) /products/{id}
+    @DeleteMapping("/{id}")
+    public Mono<Void> deleteProductById(@PathVariable Long id){
+        return productService.deleteProductById(id);
+    }
 }

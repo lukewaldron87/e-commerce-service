@@ -10,13 +10,14 @@ public class ECommerceServiceApplication {
 		SpringApplication.run(ECommerceServiceApplication.class, args);
 	}
 
+	//todo Fix this as it currently breaks the controller and repository tests.
 	/*@Bean
 	public CommandLineRunner loadDummyData(ProductRepository repository) {
 
 		return (args) -> {
 			repository.saveAll(Arrays.asList(
-							Product.builder().name("Book 1").price(BigDecimal.valueOf(19.99)).build(),
-							Product.builder().name("Book 2").price(BigDecimal.valueOf(29.99)).build()))
+							Product.builder().name("Video Game").price(BigDecimal.valueOf(45.50)).build(),
+							Product.builder().name("Mug").price(BigDecimal.valueOf(14.99)).build()))
 					.blockLast(Duration.ofSeconds(10));
 
 

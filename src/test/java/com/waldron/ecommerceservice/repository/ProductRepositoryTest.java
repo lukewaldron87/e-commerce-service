@@ -1,25 +1,38 @@
 package com.waldron.ecommerceservice.repository;
 
 import com.waldron.ecommerceservice.entity.Product;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.r2dbc.DataR2dbcTest;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.TestPropertySource;
 import reactor.test.StepVerifier;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 
 @DataR2dbcTest
 class ProductRepositoryTest {
+
     @Autowired
     private ProductRepository productRepository;
 
     @Test
     public void findProductById_should_getCorrectProduct_when_productAddedToDatabase() {
 
-        //todo fix test ad it's looking for an id that doesn't exist
+        Product product = Product.builder()
+                .name("Book 1")
+                .price(BigDecimal.valueOf(19.99))
+                .build();
+
+        productRepository.save(product).log().subscribe();
+
+        // the original product is updated with an id and this can now be used to retrieve it from the database
+        StepVerifier.create(productRepository.findById(product.getId()))
+                .expectNextMatches(productCreated -> productCreated.equals(product))
+                .verifyComplete();
+    }
+
+    @Test
+    public void delete_should_RemoveAProduct_when_passedAnExistingProduct(){
 
         Product product = Product.builder()
                 .name("Book 1")
@@ -28,27 +41,9 @@ class ProductRepositoryTest {
 
         productRepository.save(product).subscribe();
 
-        StepVerifier.create(productRepository.findById(product.getId()))
-                .expectNextMatches(productCreated -> productCreated.equals(product))
-                .verifyComplete();
-    }
-
-    //todo add test for delete
-    /*@Test
-    public void whenDeleteAll_then0IsExpected() {
-        playerRepository.deleteAll()
+        productRepository.deleteById(product.getId())
                 .as(StepVerifier::create)
                 .expectNextCount(0)
                 .verifyComplete();
     }
-
-    @Test
-    public void whenInsert6_then6AreExpected() {
-        insertPlayers();
-        playerRepository.findAll()
-                .as(StepVerifier::create)
-                .expectNextCount(6)
-                .verifyComplete();
-    }*/
-
 }
