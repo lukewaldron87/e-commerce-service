@@ -19,6 +19,8 @@ class ProductRepositoryTest {
     @Test
     public void findProductById_should_getCorrectProduct_when_productAddedToDatabase() {
 
+        //todo fix test ad it's looking for an id that doesn't exist
+
         Product product = Product.builder()
                 .name("Book 1")
                 .price(BigDecimal.valueOf(19.99))

@@ -30,8 +30,6 @@ class ProductServiceImplTest {
 
         // example: https://medium.com/@BPandey/writing-unit-test-in-reactive-spring-boot-application-32b8878e2f57
 
-        // https://www.baeldung.com/reactive-streams-step-verifier-test-publisher
-
         Product product1 = Product.builder()
                 .id(1L)
                 .name("Book 1")
