@@ -3,22 +3,15 @@ package com.waldron.ecommerceservice.service;
 import com.waldron.ecommerceservice.entity.Product;
 import com.waldron.ecommerceservice.repository.ProductRepository;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -50,9 +43,7 @@ class ProductServiceImplTest {
                 .price(BigDecimal.valueOf(19.99))
                 .build();
 
-        Flux<Product> expectedProductFlux = Flux.just(product1, product2);
-
-        when(productRepository.findAll()).thenReturn(expectedProductFlux);
+        when(productRepository.findAll()).thenReturn(Flux.just(product1, product2));
 
         Flux<Product> returnedProductFlux = productService.getProducts();
 
@@ -84,9 +75,7 @@ class ProductServiceImplTest {
                 .price(BigDecimal.valueOf(19.99))
                 .build();
 
-        Mono<Product> productMono = Mono.just(newProduct);
-
-        when(productRepository.save(newProduct)).thenReturn(productMono);
+        when(productRepository.save(newProduct)).thenReturn(Mono.just(newProduct));
 
         Mono<Product> returnedProduct = productService.createProduct(newProduct);
 
