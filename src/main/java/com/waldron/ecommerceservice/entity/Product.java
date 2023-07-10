@@ -13,8 +13,12 @@ import java.math.BigDecimal;
 @ToString
 public class Product {
 
+    //todo add validation
+
     @Id
     private Long id;
+
+    //@NotNull(message = "Name can not be empty")
     private String name;
     private BigDecimal price;
 }

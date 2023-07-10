@@ -7,8 +7,6 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-
 @Service
 public class ProductServiceImpl implements ProductService{
 
@@ -25,13 +23,23 @@ public class ProductServiceImpl implements ProductService{
         return productRepository.save(product);
     }
 
-    //todo updateProduct
+    public Mono<Product> updateProductForId(Long productId, Product product) {
+
+        return productRepository.findById(productId)
+                //todo add code for ID not found
+                //.switchIfEmpty(Mono.error(new NotFoundException()))
+                //todo add mapping for update
+                .map(foundProduct -> {
+                    foundProduct.setName(product.getName());
+                    foundProduct.setPrice(product.getPrice());
+                    return foundProduct;
+                })
+                .flatMap(updatedProduct -> productRepository.save(updatedProduct));
+    }
 
     @Override
-    public Mono<Product> deleteProductById(Long productId) {
-        //return productRepository.deleteById(productId);
-        return productRepository.findById(productId)
-                .doOnSuccess(product -> productRepository.delete(product).subscribe());
-
+    public Mono<Void> deleteProductForId(Long productId) {
+        return productRepository.deleteById(productId);
+        //todo create response for not found
     }
 }

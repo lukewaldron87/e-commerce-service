@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/products")
 public class ProductController {
@@ -17,28 +15,18 @@ public class ProductController {
     @Autowired
     ProductService productService;
 
-    // examples https://www.baeldung.com/java-reactive-systems#3-order-service
-
     @GetMapping
     public Flux<Product> getProducts() {
         //todo add error, success...
         return productService.getProducts();
     }
 
-    //todo GET gerProductById(Long id)
-
-    /**
-     * {
-     *     "name": "REST Book",
-     *     "price": 19.99
-     * }
-     *
-     * @param product
-     * @return
-     */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    //todo add validation with @Valid
     public Mono<Product> createProduct(@RequestBody Product product){
+
+        //todo validate product entity
 
         return productService.createProduct(product);
 
@@ -53,11 +41,13 @@ public class ProductController {
                 });*/
     }
 
-    //todo PUT updateProduct(Product)
+    @PutMapping("/{id}")
+    public Mono<Product> updateProductForId(@PathVariable Long id, @RequestBody Product product){
+        return productService.updateProductForId(id, product);
+    }
 
-    //todo DELETE deleteProduct(Long id) /products/{id}
     @DeleteMapping("/{id}")
-    public Mono<Product> deleteProductById(@PathVariable Long id){
-        return productService.deleteProductById(id);
+    public Mono<Void> deleteProductForId(@PathVariable Long id){
+        return productService.deleteProductForId(id);
     }
 }

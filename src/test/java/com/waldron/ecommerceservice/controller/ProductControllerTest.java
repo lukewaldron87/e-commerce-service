@@ -9,14 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -33,7 +30,7 @@ class ProductControllerTest {
     private static String PRODUCTS_URI = "/products";
 
     @Test
-    public void getProducts_should_getProductsFromService(){
+    public void getProducts_shouldGetProductsFromService(){
 
         Product product1 = Product.builder()
                 .id(1L)
@@ -41,9 +38,9 @@ class ProductControllerTest {
                 .price(BigDecimal.valueOf(19.99))
                 .build();
         Product product2 = Product.builder()
-                .id(1L)
-                .name("Book 1")
-                .price(BigDecimal.valueOf(19.99))
+                .id(2L)
+                .name("Book 2")
+                .price(BigDecimal.valueOf(29.99))
                 .build();
 
         when(productService.getProducts()).thenReturn(Flux.just(product1, product2));
@@ -107,7 +104,36 @@ class ProductControllerTest {
     }
 
     @Test
-    public void deleteProductById_should_passProductIdToService(){
+    public void updateProductForId_shouldPassProductToService(){
+        Long productId = 1L;
+        Product product = Product.builder()
+                .id(productId)
+                .name("Book 1")
+                .price(BigDecimal.valueOf(19.99))
+                .build();
+
+        when(productService.updateProductForId(productId, product)).thenReturn(Mono.just(product));
+
+        webClient.put()
+                .uri(PRODUCTS_URI+"/"+productId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .body(Mono.just(product), Product.class)
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .expectBody(Product.class)
+                .isEqualTo(product);
+
+        ArgumentCaptor<Long> idCaptor = ArgumentCaptor.forClass(Long.class);
+        ArgumentCaptor<Product> productCaptor = ArgumentCaptor.forClass(Product.class);
+        verify(productService).updateProductForId(idCaptor.capture(), productCaptor.capture());
+        assertEquals(productId, idCaptor.getValue());
+        assertEquals(product, productCaptor.getValue());
+    }
+
+    @Test
+    public void deleteProductForId_shouldPassProductIdToService(){
 
         Long productId = 1L;
 
@@ -120,7 +146,7 @@ class ProductControllerTest {
                 //.isEqualTo("Product with id 1 is deleted.");
 
         ArgumentCaptor<Long> argumentCaptor = ArgumentCaptor.forClass(Long.class);
-        verify(productService).deleteProductById(argumentCaptor.capture());
+        verify(productService).deleteProductForId(argumentCaptor.capture());
         assertEquals(productId, argumentCaptor.getValue());
     }
 

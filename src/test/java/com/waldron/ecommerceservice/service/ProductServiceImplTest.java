@@ -12,8 +12,6 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -28,9 +26,7 @@ class ProductServiceImplTest {
     private ProductServiceImpl productService;
 
     @Test
-    public void getProducts_should_returnAllExpectedProducts(){
-
-        // example: https://medium.com/@BPandey/writing-unit-test-in-reactive-spring-boot-application-32b8878e2f57
+    public void getProducts_shouldReturnAllExpectedProducts(){
 
         Product product1 = Product.builder()
                 .id(1L)
@@ -38,9 +34,9 @@ class ProductServiceImplTest {
                 .price(BigDecimal.valueOf(19.99))
                 .build();
         Product product2 = Product.builder()
-                .id(1L)
-                .name("Book 1")
-                .price(BigDecimal.valueOf(19.99))
+                .id(2L)
+                .name("Book 2")
+                .price(BigDecimal.valueOf(29.99))
                 .build();
 
         when(productRepository.findAll()).thenReturn(Flux.just(product1, product2));
@@ -54,7 +50,7 @@ class ProductServiceImplTest {
     }
 
     @Test
-    public void createProduct_should_passNewProductToRepository(){
+    public void createProduct_shouldPassNewProductToRepository(){
         Product product = Product.builder()
                 .name("Book 1")
                 .price(BigDecimal.valueOf(19.99))
@@ -69,7 +65,7 @@ class ProductServiceImplTest {
     }
 
     @Test
-    public void createProduct_should_returnCreatedProduct(){
+    public void createProduct_shouldReturnCreatedProduct(){
         Product newProduct = Product.builder()
                 .name("Book 1")
                 .price(BigDecimal.valueOf(19.99))
@@ -85,29 +81,50 @@ class ProductServiceImplTest {
 
     }
 
-    @Test
-    public void deleteProductById_should_passProductToRepository_whenProductExists(){
-        Long productId = 1L;
 
-        Product product = Product.builder()
-                .id(1L)
+    //todo fix this test
+    @Test
+    public void updateProductForId_shouldPassProductToRepository(){
+        Long productId = 1L;
+        Product existingProduct = Product.builder()
+                .id(productId)
                 .name("Book 1")
                 .price(BigDecimal.valueOf(19.99))
                 .build();
+        Product productUpdate = Product.builder()
+                .id(null)
+                .name("Book Update")
+                .price(BigDecimal.valueOf(99.99))
+                .build();
 
-        Mono<Product> productMono = Mono.just(product);
+        when(productRepository.findById(productId)).thenReturn(Mono.just(existingProduct));
+        when(productRepository.save(any(Product.class))).thenReturn(Mono.just(productUpdate));
 
-        when((productRepository.findById(productId))).thenReturn(productMono);
+        StepVerifier.create(productService.updateProductForId(productId, productUpdate))
+                .expectNext(productUpdate)
+                .verifyComplete();
 
-        productService.deleteProductById(productId);
-
-        //todo this is finding the interaction with productRepository.findById not productRepository::delete
         ArgumentCaptor<Product> argumentCaptor = ArgumentCaptor.forClass(Product.class);
-        verify(productRepository).delete(argumentCaptor.capture());
-        assertEquals(product, argumentCaptor.getValue());
+        verify(productRepository).save(argumentCaptor.capture());
+        assertEquals(existingProduct.getId(), argumentCaptor.getValue().getId());
+        assertEquals(productUpdate.getName(), argumentCaptor.getValue().getName());
+        assertEquals(productUpdate.getPrice(), argumentCaptor.getValue().getPrice());
+
     }
 
-    //todo add test for product exists
+    @Test
+    public void deleteProductForId_shouldPassProductIfToRepository(){
+
+        Long productId = 1L;
+
+        productService.deleteProductForId(productId);
+
+        ArgumentCaptor<Long> argumentCaptor = ArgumentCaptor.forClass(Long.class);
+        verify(productRepository).deleteById(argumentCaptor.capture());
+        assertEquals(productId, argumentCaptor.getValue());
+    }
+
+    //todo add test for product does not exist
 
     //todo add test for return Mono<Void>
 }

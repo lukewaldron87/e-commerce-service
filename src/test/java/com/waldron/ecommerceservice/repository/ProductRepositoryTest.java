@@ -16,7 +16,7 @@ class ProductRepositoryTest {
     private ProductRepository productRepository;
 
     @Test
-    public void findProductById_should_getCorrectProduct_when_productAddedToDatabase() {
+    public void findProductById_shouldGetCorrectProduct_when_productAddedToDatabase() {
 
         Product product = Product.builder()
                 .name("Book 1")
@@ -32,7 +32,7 @@ class ProductRepositoryTest {
     }
 
     @Test
-    public void delete_should_RemoveAProduct_when_passedAnExistingProduct(){
+    public void delete_shouldRemoveAProduct_when_passedAnExistingProduct(){
 
         Product product = Product.builder()
                 .name("Book 1")
