@@ -2,6 +2,7 @@ package com.waldron.ecommerceservice.controller;
 
 import com.waldron.ecommerceservice.entity.Product;
 import com.waldron.ecommerceservice.service.ProductService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -17,32 +18,17 @@ public class ProductController {
 
     @GetMapping
     public Flux<Product> getProducts() {
-        //todo add error, success...
         return productService.getProducts();
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    //todo add validation with @Valid
-    public Mono<Product> createProduct(@RequestBody Product product){
-
-        //todo validate product entity
-
+    public Mono<Product> createProduct(@Valid @RequestBody Product product){
         return productService.createProduct(product);
-
-        //todo failure response
-        /*return orderService.createOrder(order)
-                .flatMap(o -> {
-                    if (OrderStatus.FAILURE.equals(o.getOrderStatus())) {
-                        return Mono.error(new RuntimeException("Order processing failed, please try again later. " + o.getResponseMessage()));
-                    } else {
-                        return Mono.just(o);
-                    }
-                });*/
     }
 
     @PutMapping("/{id}")
-    public Mono<Product> updateProductForId(@PathVariable Long id, @RequestBody Product product){
+    public Mono<Product> updateProductForId(@PathVariable Long id, @Valid @RequestBody Product product){
         return productService.updateProductForId(id, product);
     }
 

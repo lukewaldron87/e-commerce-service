@@ -1,6 +1,7 @@
 package com.waldron.ecommerceservice.entity;
 
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
@@ -13,12 +14,14 @@ import java.math.BigDecimal;
 @ToString
 public class Product {
 
-    //todo add validation
-
     @Id
     private Long id;
 
-    //@NotNull(message = "Name can not be empty")
+    //todo move validation message to message file https://www.vinsguru.com/spring-webflux-validation/
+    @NotNull(message = "Name can not be empty")
     private String name;
+
+    @NotNull(message = "Product must have price")
+    //todo add validator for price format
     private BigDecimal price;
 }
