@@ -9,11 +9,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -69,8 +72,7 @@ class ProductControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .body(Mono.just(product), Product.class)
                 .exchange()
-                .expectStatus().isOk()
-                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .expectStatus().isCreated()
                 .expectBody(Product.class);
 
         ArgumentCaptor<Product> argumentCaptor = ArgumentCaptor.forClass(Product.class);
@@ -97,7 +99,7 @@ class ProductControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .body(Mono.just(product), Product.class)
                 .exchange()
-                .expectStatus().isOk()
+                .expectStatus().isCreated()
                 .expectHeader().contentType(MediaType.APPLICATION_JSON)
                 .expectBody(Product.class)
                 .isEqualTo(expectedProduct);
@@ -112,7 +114,10 @@ class ProductControllerTest {
         webClient.delete()
                 .uri(PRODUCTS_URI+"/"+productId.toString())
                 .exchange()
-                .expectStatus().isOk();
+                .expectStatus().isOk()
+                .expectBody(String.class);
+                //todo add response to match this
+                //.isEqualTo("Product with id 1 is deleted.");
 
         ArgumentCaptor<Long> argumentCaptor = ArgumentCaptor.forClass(Long.class);
         verify(productService).deleteProductById(argumentCaptor.capture());

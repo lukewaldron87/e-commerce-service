@@ -3,9 +3,12 @@ package com.waldron.ecommerceservice.controller;
 import com.waldron.ecommerceservice.entity.Product;
 import com.waldron.ecommerceservice.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/products")
@@ -34,6 +37,7 @@ public class ProductController {
      * @return
      */
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public Mono<Product> createProduct(@RequestBody Product product){
 
         return productService.createProduct(product);
@@ -49,13 +53,11 @@ public class ProductController {
                 });*/
     }
 
-    //todo POST createProducts(List<Product>)
-
     //todo PUT updateProduct(Product)
 
     //todo DELETE deleteProduct(Long id) /products/{id}
     @DeleteMapping("/{id}")
-    public Mono<Void> deleteProductById(@PathVariable Long id){
+    public Mono<Product> deleteProductById(@PathVariable Long id){
         return productService.deleteProductById(id);
     }
 }

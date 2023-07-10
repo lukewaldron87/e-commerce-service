@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @Service
 public class ProductServiceImpl implements ProductService{
 
@@ -26,9 +28,10 @@ public class ProductServiceImpl implements ProductService{
     //todo updateProduct
 
     @Override
-    public Mono<Void> deleteProductById(Long productId) {
+    public Mono<Product> deleteProductById(Long productId) {
         //return productRepository.deleteById(productId);
         return productRepository.findById(productId)
-                .flatMap(productRepository::delete);
+                .doOnSuccess(product -> productRepository.delete(product).subscribe());
+
     }
 }

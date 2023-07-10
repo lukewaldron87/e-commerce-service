@@ -4,11 +4,13 @@ import com.waldron.ecommerceservice.entity.Product;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 public interface ProductService {
 
     Flux<Product> getProducts();
 
     Mono<Product> createProduct(Product product);
 
-    Mono<Void> deleteProductById(Long productId);
+    Mono<Product> deleteProductById(Long productId);
 }
