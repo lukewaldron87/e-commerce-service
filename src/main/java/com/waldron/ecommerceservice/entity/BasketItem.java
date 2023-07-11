@@ -18,8 +18,6 @@ public class BasketItem {
     @Id
     private Long id;
 
-
-
     // relationships not supported in R2DBC. I'm using a Long to store the productId foreign key
     @Column("product_id")
     private Long productId;
