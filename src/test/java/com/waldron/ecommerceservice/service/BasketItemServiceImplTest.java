@@ -196,4 +196,16 @@ class BasketItemServiceImplTest {
         assertEquals(expectedProductCount, argumentCaptor.getValue().getProductCount());
     }
 
+    @Test
+    public void deleteBasketItemForId_shouldPassIdToRepository(){
+
+        Long basketItemId = 1l;
+
+        basketItemService.deleteBasketItemForId(basketItemId);
+
+        ArgumentCaptor<Long> argumentCaptor = ArgumentCaptor.forClass(Long.class);
+        verify(basketItemRepository).deleteById(argumentCaptor.capture());
+        assertEquals(basketItemId, argumentCaptor.getValue());
+    }
+
 }

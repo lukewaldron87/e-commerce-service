@@ -62,9 +62,14 @@ public class BasketItemServiceImpl implements BasketItemService{
         return null;
     }*/
 
-    //todo add x number of product
+    //todo add x number of product or should it be an update method?
+    //or add x number of product and update
+    // or does this go in the entity???
 
-    //todo delete basket item
+    @Override
+    public Mono<Void> deleteBasketItemForId(Long basketItemId) {
+        return basketItemRepository.deleteById(basketItemId);
+    }
 
-    //todo add getTotalPrice
+    //todo add getTotalPrice or does this go in the entity???
 }

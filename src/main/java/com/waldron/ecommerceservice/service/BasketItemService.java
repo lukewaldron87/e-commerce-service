@@ -12,5 +12,5 @@ public interface BasketItemService {
 
     Mono<BasketItem> createBasketItem(BasketItem basketItem);
 
-    //Mono<BasketItem> createBasketItemForProduct(Product product);
+    Mono<Void> deleteBasketItemForId(Long basketItemId);
 }
