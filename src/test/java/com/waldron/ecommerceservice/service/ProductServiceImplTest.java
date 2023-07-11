@@ -1,6 +1,7 @@
 package com.waldron.ecommerceservice.service;
 
 import com.waldron.ecommerceservice.entity.Product;
+import com.waldron.ecommerceservice.exception.NotFoundException;
 import com.waldron.ecommerceservice.repository.ProductRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -81,10 +82,8 @@ class ProductServiceImplTest {
 
     }
 
-
-    //todo fix this test
     @Test
-    public void updateProductForId_shouldPassProductToRepository(){
+    public void updateProductForId_shouldPassProductToRepository_whenProductExists(){
         Long productId = 1L;
         Product existingProduct = Product.builder()
                 .id(productId)
@@ -113,6 +112,27 @@ class ProductServiceImplTest {
     }
 
     @Test
+    public void updateProductForId_returnMonoError_whenProductDoesNotExits() {
+
+        Long productId = 1L;
+        Product existingProduct = Product.builder()
+                .id(productId)
+                .name("Book 1")
+                .price(BigDecimal.valueOf(19.99))
+                .build();
+        Product productUpdate = Product.builder()
+                .id(null)
+                .name("Book Update")
+                .price(BigDecimal.valueOf(99.99))
+                .build();
+
+        when(productRepository.findById(productId)).thenReturn(Mono.empty());
+
+        StepVerifier.create(productService.updateProductForId(productId, productUpdate))
+                .expectError(NotFoundException.class);
+    }
+
+    @Test
     public void deleteProductForId_shouldPassProductIfToRepository(){
 
         Long productId = 1L;
@@ -123,8 +143,6 @@ class ProductServiceImplTest {
         verify(productRepository).deleteById(argumentCaptor.capture());
         assertEquals(productId, argumentCaptor.getValue());
     }
-
-    //todo add test for product does not exist
 
     //todo add test for return Mono<Void>
 }

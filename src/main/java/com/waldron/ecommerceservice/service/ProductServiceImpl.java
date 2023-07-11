@@ -1,6 +1,7 @@
 package com.waldron.ecommerceservice.service;
 
 import com.waldron.ecommerceservice.entity.Product;
+import com.waldron.ecommerceservice.exception.NotFoundException;
 import com.waldron.ecommerceservice.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,12 +24,18 @@ public class ProductServiceImpl implements ProductService{
         return productRepository.save(product);
     }
 
+    /**
+     * Update product if it already exists
+     *
+     * @param productId the ID of the product to update
+     * @param product the product with the updated fields
+     * @return the updated product
+     */
     public Mono<Product> updateProductForId(Long productId, Product product) {
 
         return productRepository.findById(productId)
-                //todo add code for ID not found
-                //.switchIfEmpty(Mono.error(new NotFoundException()))
-                //todo add mapping for update
+                .switchIfEmpty(Mono.error(new NotFoundException("Product not found")))
+                //todo add mapping method for update
                 .map(foundProduct -> {
                     foundProduct.setName(product.getName());
                     foundProduct.setPrice(product.getPrice());
@@ -41,5 +48,6 @@ public class ProductServiceImpl implements ProductService{
     public Mono<Void> deleteProductForId(Long productId) {
         return productRepository.deleteById(productId);
         //todo create response for not found
+                //.switchIfEmpty(Mono.error(new NotFoundException("Product not found")))
     }
 }

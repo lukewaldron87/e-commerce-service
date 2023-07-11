@@ -6,12 +6,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.math.BigDecimal;
 
 @Data
 @Builder
 @ToString
+@Table("product")
 public class Product {
 
     @Id

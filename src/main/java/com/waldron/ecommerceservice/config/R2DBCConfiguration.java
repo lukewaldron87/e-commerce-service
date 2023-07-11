@@ -13,33 +13,8 @@ import static io.r2dbc.spi.ConnectionFactoryOptions.*;
 @EnableR2dbcRepositories
 public class R2DBCConfiguration extends AbstractR2dbcConfiguration {
 
-    /*@Bean
     public ConnectionFactory connectionFactory() {
-        return new ConnectionFactory(
-                ConnectionFactory.builder()
-                        .url("mem:testdb;DB_CLOSE_DELAY=-1;")
-                        .username("sa")
-                        .build()
-        );
-    }*/
-
-    public ConnectionFactory connectionFactory() {
-        //return H2ConnectionFactory.inMemory("testdb")
         return ConnectionFactories.get("r2dbc:h2:mem:///testdb");
-        //return ConnectionFactories.get("r2dbc:h2:mem:///testdb;DB_CLOSE_DELAY=-1;");
     }
-
-    /*@Bean
-    public H2ConnectionFactory connectionFactory() {
-        return ConnectionFactories.get(
-                builder()
-                        .option(DRIVER, "h2")
-                        //.option(PROTOCOL, "mem")  // file, mem
-                        //.option(HOST, "…")
-                        .option(USER, "sa")
-                        .option(PASSWORD, "")
-                        .option(DATABASE, "r2dbc:h2:mem:///testdb")
-                        .build());
-    }*/
 
 }
