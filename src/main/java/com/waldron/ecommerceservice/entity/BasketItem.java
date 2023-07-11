@@ -7,7 +7,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 
 @Data
 @Builder
@@ -27,5 +26,9 @@ public class BasketItem {
 
     @Column("product_count")
     private int productCount;
+
+    // ManyToOne
+    @Column("basket_id")
+    private Long basketId;
 
 }

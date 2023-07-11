@@ -1,8 +1,10 @@
 package com.waldron.ecommerceservice.config;
 
+import com.waldron.ecommerceservice.entity.Basket;
 import com.waldron.ecommerceservice.entity.BasketItem;
 import com.waldron.ecommerceservice.entity.Product;
 import com.waldron.ecommerceservice.repository.BasketItemRepository;
+import com.waldron.ecommerceservice.repository.BasketRepository;
 import com.waldron.ecommerceservice.repository.ProductRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -33,9 +35,22 @@ public class DummyDataLoader {
 
         return (args) -> {
             repository.saveAll(Arrays.asList(
-                    BasketItem.builder().productId(1l).productCount(3).build(),
-                    BasketItem.builder().productId(2l).productCount(2).build(),
-                    BasketItem.builder().productId(3l).productCount(1).build())
+                    BasketItem.builder().productId(1l).productCount(3).basketId(1l).build(),
+                    BasketItem.builder().productId(2l).productCount(2).basketId(1l).build(),
+                    BasketItem.builder().productId(3l).productCount(1).basketId(1l).build(),
+                    BasketItem.builder().productId(1l).productCount(2).basketId(2l).build(),
+                    BasketItem.builder().productId(2l).productCount(2).basketId(2l).build())
+            ).blockLast(Duration.ofSeconds(10));
+        };
+    }
+
+    @Bean
+    public CommandLineRunner loadBaskets(BasketRepository repository) {
+
+        return (args) -> {
+            repository.saveAll(Arrays.asList(
+                    Basket.builder().build(),
+                    Basket.builder().build())
             ).blockLast(Duration.ofSeconds(10));
         };
     }

@@ -7,5 +7,10 @@ CREATE TABLE IF NOT EXISTS product (
 CREATE TABLE IF NOT EXISTS basket_item(
     id SERIAL PRIMARY KEY,
     product_id INTEGER REFERENCES product (id),
-    product_count INTEGER
+    product_count INTEGER,
+    basket_id INTEGER REFERENCES product (id)
+);
+
+CREATE TABLE IF NOT EXISTS basket (
+    id SERIAL PRIMARY KEY
 );
