@@ -6,6 +6,7 @@ import com.waldron.ecommerceservice.exception.NotFoundException;
 import com.waldron.ecommerceservice.repository.BasketItemRepository;
 import com.waldron.ecommerceservice.repository.ProductRepository;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,6 +15,8 @@ import reactor.test.StepVerifier;
 
 import java.math.BigDecimal;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -129,6 +132,68 @@ class BasketItemServiceImplTest {
         StepVerifier.create(basketItemService.createBasketItem(newBasketItem))
                 .expectNext(newBasketItem)
                 .verifyComplete();
+    }
+
+    @Test
+    public void createBasketItem_shouldAddProductIdToBasketItem_whenProductIdNotProvided(){
+
+        Long basketItemId = 1l;
+        Long productId = 2l;
+        Product product = Product.builder()
+                .id(productId)
+                .name("Book")
+                .price(BigDecimal.valueOf(19.99))
+                .build();
+        BasketItem newBasketItem = BasketItem.builder()
+                .id(basketItemId)
+                .product(product)
+                .productCount(1)
+                .build();
+
+        BasketItem expectedBasketItem = BasketItem.builder()
+                .id(basketItemId)
+                .product(product)
+                .productId(productId)
+                .productCount(newBasketItem.getProductCount())
+                .build();
+
+        when(basketItemRepository.save(newBasketItem)).thenReturn(Mono.just(expectedBasketItem));
+
+        StepVerifier.create(basketItemService.createBasketItem(newBasketItem))
+                .expectNext(expectedBasketItem)
+                .verifyComplete();
+
+        ArgumentCaptor<BasketItem> argumentCaptor = ArgumentCaptor.forClass(BasketItem.class);
+        verify(basketItemRepository).save(argumentCaptor.capture());
+        assertEquals(productId, argumentCaptor.getValue().getProductId());
+    }
+
+    @Test
+    public void createBasketItem_shouldSetProductCountToOne_whenProductCountIsNotSet() {
+
+        Long basketItemId = 1l;
+        Long productId = 2l;
+        BasketItem newBasketItem = BasketItem.builder()
+                .id(basketItemId)
+                .productId(productId)
+                .build();
+
+        int expectedProductCount = 1;
+        BasketItem expectedBasketItem = BasketItem.builder()
+                .id(basketItemId)
+                .productId(productId)
+                .productCount(expectedProductCount)
+                .build();
+
+        when(basketItemRepository.save(newBasketItem)).thenReturn(Mono.just(expectedBasketItem));
+
+        StepVerifier.create(basketItemService.createBasketItem(newBasketItem))
+                .expectNext(expectedBasketItem)
+                .verifyComplete();
+
+        ArgumentCaptor<BasketItem> argumentCaptor = ArgumentCaptor.forClass(BasketItem.class);
+        verify(basketItemRepository).save(argumentCaptor.capture());
+        assertEquals(expectedProductCount, argumentCaptor.getValue().getProductCount());
     }
 
 }

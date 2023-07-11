@@ -37,8 +37,24 @@ public class BasketItemServiceImpl implements BasketItemService{
 
     @Override
     public Mono<BasketItem> createBasketItem(BasketItem basketItem) {
-        //todo add productId to basketItem
+        //todo verify BasketItem has product or productId
+        verifyProductId(basketItem);
+        verifyProductCount(basketItem);
+
         return basketItemRepository.save(basketItem);
+    }
+
+    private static void verifyProductId(BasketItem basketItem) {
+        //todo throw exception if Product missing
+        if (basketItem.getProductId() == null){
+            basketItem.setProductId(basketItem.getProduct().getId());
+        }
+    }
+
+    private static void verifyProductCount(BasketItem basketItem) {
+        if (basketItem.getProductCount() == 0){
+            basketItem.setProductCount(1);
+        }
     }
 
     /*@Override
