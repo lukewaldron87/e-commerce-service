@@ -35,7 +35,7 @@ public class ProductController {
 
     @DeleteMapping("/{id}")
     //todo test this
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    //@ResponseStatus(HttpStatus.NO_CONTENT)
     public Mono<Void> deleteProductForId(@PathVariable Long id){
         return productService.deleteProductForId(id);
             //todo add reply for id not found with ResponseEntity

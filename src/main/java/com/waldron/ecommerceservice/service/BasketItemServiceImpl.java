@@ -8,7 +8,7 @@ import com.waldron.ecommerceservice.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Mono;
 
-public class BasketItemServiceImpl implements BasketItemService{
+public class BasketItemServiceImpl implements BasketItemService {
 
     @Autowired
     private BasketItemRepository basketItemRepository;
@@ -44,25 +44,28 @@ public class BasketItemServiceImpl implements BasketItemService{
         return basketItemRepository.save(basketItem);
     }
 
+    @Override
+    public Mono<BasketItem> updatedBasketItem(BasketItem updatedBasketItem) {
+
+        //todo add BasketItem mapping
+
+        return basketItemRepository.save(updatedBasketItem);
+    }
+
     private static void verifyProductId(BasketItem basketItem) {
         //todo throw exception if Product missing
-        if (basketItem.getProductId() == null){
+        if (basketItem.getProductId() == null) {
             basketItem.setProductId(basketItem.getProduct().getId());
         }
     }
 
     private static void verifyProductCount(BasketItem basketItem) {
-        if (basketItem.getProductCount() == 0){
+        if (basketItem.getProductCount() == 0) {
             basketItem.setProductCount(1);
         }
     }
 
-    /*@Override
-    public Mono<BasketItem> createBasketItemForProduct(Product product) {
-        return null;
-    }*/
-
-    //todo add x number of product or should it be an update method?
+    // todo add x number of product or should it be an update method?
     //or add x number of product and update
     // or does this go in the entity???
 
@@ -71,5 +74,5 @@ public class BasketItemServiceImpl implements BasketItemService{
         return basketItemRepository.deleteById(basketItemId);
     }
 
-    //todo add getTotalPrice or does this go in the entity???
+    // todo add getTotalPrice or does this go in the entity???
 }

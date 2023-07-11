@@ -112,7 +112,7 @@ class BasketItemServiceImplTest {
 
 
     @Test
-    public void createBasketItem_shouldPassNewBasketItemToRepository(){
+    public void createBasketItem_shouldPassUpdatedBasketItemToRepository(){
 
         Long basketItemId = 1l;
         Long productId = 2l;
@@ -197,6 +197,31 @@ class BasketItemServiceImplTest {
     }
 
     @Test
+    public void updateBasketItem_shouldPassBasketItemToRepository(){
+
+        Long basketItemId = 1l;
+        Long productId = 2l;
+        Product product = Product.builder()
+                .id(productId)
+                .name("Book")
+                .price(BigDecimal.valueOf(19.99))
+                .build();
+        BasketItem updatedBasketItem = BasketItem.builder()
+                .id(basketItemId)
+                .product(product)
+                .productCount(1)
+                .build();
+
+        when(basketItemRepository.save(updatedBasketItem)).thenReturn(Mono.just(updatedBasketItem));
+
+        basketItemService.updatedBasketItem(updatedBasketItem);
+
+        ArgumentCaptor<BasketItem> argumentCaptor = ArgumentCaptor.forClass(BasketItem.class);
+        verify(basketItemRepository).save(argumentCaptor.capture());
+        assertEquals(updatedBasketItem, argumentCaptor.getValue());
+    }
+
+    @Test
     public void deleteBasketItemForId_shouldPassIdToRepository(){
 
         Long basketItemId = 1l;
@@ -207,5 +232,4 @@ class BasketItemServiceImplTest {
         verify(basketItemRepository).deleteById(argumentCaptor.capture());
         assertEquals(basketItemId, argumentCaptor.getValue());
     }
-
 }
