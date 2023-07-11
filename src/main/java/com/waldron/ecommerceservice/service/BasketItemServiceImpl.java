@@ -6,8 +6,11 @@ import com.waldron.ecommerceservice.exception.NotFoundException;
 import com.waldron.ecommerceservice.repository.BasketItemRepository;
 import com.waldron.ecommerceservice.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@Service
 public class BasketItemServiceImpl implements BasketItemService {
 
     @Autowired
@@ -24,14 +27,29 @@ public class BasketItemServiceImpl implements BasketItemService {
                     if (basketItem.getProductId() == null) {
                         return Mono.just(basketItem);
                     }
-                    // interacting directly with repository instead of service as no business logic required when fetching product by ID
-                    return productRepository.findById(basketItem.getProductId())
-                            .switchIfEmpty(Mono.error(new NotFoundException("Product not found")))
-                            .map(product ->
-                            {
-                                basketItem.setProduct(product);
-                                return basketItem;
-                            });
+                    return addProductToBasketItem(basketItem);
+                });
+    }
+
+    @Override
+    public Flux<BasketItem> getBasketItemsForBasketId(Long basketId) {
+        return basketItemRepository.findByBasketId(basketId)
+                .flatMap(basketItem -> {
+                    if (basketItem.getProductId() == null) {
+                        return Mono.just(basketItem);
+                    }
+                    return addProductToBasketItem(basketItem);
+                });
+    }
+
+    private Mono<BasketItem> addProductToBasketItem(BasketItem basketItem) {
+        // interacting directly with repository instead of service as no business logic required when fetching product by ID
+        return productRepository.findById(basketItem.getProductId())
+                .switchIfEmpty(Mono.error(new NotFoundException("Product not found")))
+                .map(product ->
+                {
+                    basketItem.setProduct(product);
+                    return basketItem;
                 });
     }
 

@@ -14,7 +14,7 @@ import reactor.core.publisher.Mono;
 public class ProductController {
 
     @Autowired
-    ProductService productService;
+    private ProductService productService;
 
     @GetMapping
     public Flux<Product> getProducts() {

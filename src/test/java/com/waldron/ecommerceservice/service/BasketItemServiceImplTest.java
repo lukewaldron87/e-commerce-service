@@ -10,6 +10,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -70,7 +71,7 @@ class BasketItemServiceImplTest {
                 .productCount(1)
                 .build();
 
-        Product productUpdate = Product.builder()
+        Product product = Product.builder()
                 .id(productId)
                 .name("Book")
                 .price(BigDecimal.valueOf(19.99))
@@ -80,11 +81,11 @@ class BasketItemServiceImplTest {
                 .id(basketItemId)
                 .productId(productId)
                 .productCount(basketItemFromRepository.getProductCount())
-                .product(productUpdate)
+                .product(product)
                 .build();
 
         when(basketItemRepository.findById(basketItemId)).thenReturn(Mono.just(basketItemFromRepository));
-        when(productRepository.findById(productId)).thenReturn(Mono.just(productUpdate));
+        when(productRepository.findById(productId)).thenReturn(Mono.just(product));
 
         StepVerifier.create(basketItemService.getBasketItemForId(basketItemId))
                 .expectNext(expectedBasketItem)
@@ -110,6 +111,44 @@ class BasketItemServiceImplTest {
                 .verify();
     }
 
+    @Test
+    public void getBasketItemsForBasketId_shouldReturnAFluxOfBaskets(){
+
+        Long basketId = 1l;
+        Long productId = 2l;
+        BasketItem basketItem1 = BasketItem.builder().basketId(basketId).productId(productId).build();
+        BasketItem basketItem2 = BasketItem.builder().basketId(basketId).productId(productId).build();
+
+        Product product = Product.builder().id(productId).build();
+        BasketItem expectedBasketItem1 = BasketItem.builder().basketId(basketItem1.getBasketId()).productId(basketItem1.getProductId())
+                .product(product).build();
+        BasketItem expectedBasketItem2 = BasketItem.builder().basketId(basketItem2.getBasketId()).productId(basketItem2.getProductId())
+                .product(product).build();
+
+        when(basketItemRepository.findByBasketId(basketId)).thenReturn(Flux.just(basketItem1, basketItem2));
+        when(productRepository.findById(productId)).thenReturn(Mono.just(product));
+
+        StepVerifier.create(basketItemService.getBasketItemsForBasketId(basketId))
+                .expectNext(expectedBasketItem1)
+                .expectNext(expectedBasketItem2)
+                .verifyComplete();
+    }
+
+    @Test
+    public void getBasketItemsForBasketId_shouldAddCorrectProductToBasketItem(){
+
+        Long basketId = 1l;
+        BasketItem basketItem1 = BasketItem.builder().basketId(basketId).build();
+        BasketItem basketItem2 = BasketItem.builder().basketId(basketId).build();
+
+        when(basketItemRepository.findByBasketId(basketId)).thenReturn(Flux.just(basketItem1, basketItem2));
+
+        StepVerifier.create(basketItemService.getBasketItemsForBasketId(basketId))
+                .expectNext(basketItem1)
+                .expectNext(basketItem2)
+                .verifyComplete();
+
+    }
 
     @Test
     public void createBasketItem_shouldPassUpdatedBasketItemToRepository(){

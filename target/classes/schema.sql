@@ -4,13 +4,13 @@ CREATE TABLE IF NOT EXISTS product (
     price NUMERIC(10,2) NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS basket (
+    id SERIAL PRIMARY KEY
+);
+
 CREATE TABLE IF NOT EXISTS basket_item(
     id SERIAL PRIMARY KEY,
     product_id INTEGER REFERENCES product (id),
     product_count INTEGER,
-    basket_id INTEGER REFERENCES product (id)
-);
-
-CREATE TABLE IF NOT EXISTS basket (
-    id SERIAL PRIMARY KEY
+    basket_id INTEGER REFERENCES basket (id)
 );

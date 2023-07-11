@@ -31,6 +31,17 @@ public class DummyDataLoader {
     }
 
     @Bean
+    public CommandLineRunner loadBaskets(BasketRepository repository) {
+
+        return (args) -> {
+            repository.saveAll(Arrays.asList(
+                    Basket.builder().build(),
+                    Basket.builder().build())
+            ).blockLast(Duration.ofSeconds(10));
+        };
+    }
+
+    @Bean
     public CommandLineRunner loadBasketItems(BasketItemRepository repository) {
 
         return (args) -> {
@@ -40,17 +51,6 @@ public class DummyDataLoader {
                     BasketItem.builder().productId(3l).productCount(1).basketId(1l).build(),
                     BasketItem.builder().productId(1l).productCount(2).basketId(2l).build(),
                     BasketItem.builder().productId(2l).productCount(2).basketId(2l).build())
-            ).blockLast(Duration.ofSeconds(10));
-        };
-    }
-
-    @Bean
-    public CommandLineRunner loadBaskets(BasketRepository repository) {
-
-        return (args) -> {
-            repository.saveAll(Arrays.asList(
-                    Basket.builder().build(),
-                    Basket.builder().build())
             ).blockLast(Duration.ofSeconds(10));
         };
     }

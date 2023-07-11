@@ -14,7 +14,7 @@ import reactor.core.publisher.Mono;
 public class BasketController {
 
     @Autowired
-    BasketService basketService;
+    private BasketService basketService;
 
     @GetMapping("/{id}")
     public Mono<Basket> getBasketForId(@PathVariable Long id){

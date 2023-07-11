@@ -12,7 +12,7 @@ import reactor.core.publisher.Mono;
 public class ProductServiceImpl implements ProductService{
 
     @Autowired
-    ProductRepository productRepository;
+    private ProductRepository productRepository;
 
     @Override
     public Flux<Product> getProducts() {
