@@ -115,11 +115,6 @@ class ProductServiceImplTest {
     public void updateProductForId_returnMonoError_whenProductDoesNotExits() {
 
         Long productId = 1L;
-        Product existingProduct = Product.builder()
-                .id(productId)
-                .name("Book 1")
-                .price(BigDecimal.valueOf(19.99))
-                .build();
         Product productUpdate = Product.builder()
                 .id(null)
                 .name("Book Update")
@@ -129,7 +124,8 @@ class ProductServiceImplTest {
         when(productRepository.findById(productId)).thenReturn(Mono.empty());
 
         StepVerifier.create(productService.updateProductForId(productId, productUpdate))
-                .expectError(NotFoundException.class);
+                .expectError(NotFoundException.class)
+                .verify();
     }
 
     @Test
