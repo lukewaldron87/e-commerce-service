@@ -1,15 +1,18 @@
 package com.waldron.ecommerceservice.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 @Data
 @Builder
+@AllArgsConstructor
 @ToString
 @Table("basket_item")
 public class BasketItem {
@@ -31,4 +34,12 @@ public class BasketItem {
     @Column("basket_id")
     private Long basketId;
 
+    //this constructor allows reading from the database while ignoring the @Transient fields
+    @PersistenceConstructor
+    public BasketItem(Long id, Long productId, int productCount, Long basketId) {
+        this.id = id;
+        this.productId = productId;
+        this.productCount = productCount;
+        this.basketId = basketId;
+    }
 }
