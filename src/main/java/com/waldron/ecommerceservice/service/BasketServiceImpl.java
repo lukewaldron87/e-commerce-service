@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -31,10 +33,23 @@ public class BasketServiceImpl implements BasketService{
         Mono<Basket> basketMono = basketRepository.findById(basketId)
                 .switchIfEmpty(Mono.error(new NotFoundException("Basket not found")));
 
-        Set<BasketItem> basketItemSet = new HashSet<>();
-        basketItemService.getBasketItemsForBasketId(basketId).collect(Collectors.toSet()).subscribe(basketItemSet::addAll);
+        Map<Long, BasketItem> goodIdToBasketItemMap = new HashMap<>();
 
-        return basketMono.map(basket -> {basket.setBasketItems(basketItemSet); return basket;});
-        // use basketItemService.getBasketItemsForBasketId to populate Set<BasketItem> basketItems
+        basketItemService.getBasketItemsForBasketId(basketId).collectMap(
+                basketItem -> basketItem.getProductId(),
+                basketItem -> basketItem
+        ).subscribe(goodIdToBasketItemMap::putAll);
+
+        return basketMono.map(basket -> {basket.setGoodIdToBasketItemMap(goodIdToBasketItemMap); return basket;});
     }
+
+    //todo get total
+
+    //todo add x number of products
+
+    //todo remove x number of products
+
+    //todo remove product
+
+    //todo add get Map <Product, Integer> productsToCountMap
 }

@@ -1,1 +1,1 @@
-implemented entity joins in services
+implemented entity joins in services layer to maintain non-blocking architecture 

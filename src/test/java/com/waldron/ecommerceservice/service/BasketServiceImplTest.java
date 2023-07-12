@@ -2,6 +2,7 @@ package com.waldron.ecommerceservice.service;
 
 import com.waldron.ecommerceservice.entity.Basket;
 import com.waldron.ecommerceservice.entity.BasketItem;
+import com.waldron.ecommerceservice.entity.Product;
 import com.waldron.ecommerceservice.exception.NotFoundException;
 import com.waldron.ecommerceservice.repository.BasketItemRepository;
 import com.waldron.ecommerceservice.repository.BasketRepository;
@@ -13,9 +14,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -74,22 +73,24 @@ class BasketServiceImplTest {
         BasketItem basketItem1 = BasketItem.builder()
                 .id(basketItem1Id)
                 .basketId(basketId)
+                .productId(1l)
                 .productCount(1)
                 .build();
 
         BasketItem basketItem2 = BasketItem.builder()
                 .id(basketItem1Id)
                 .basketId(basketItem2Id)
+                .productId(2l)
                 .productCount(1)
                 .build();
 
-        Set<BasketItem> basketItemSet = new HashSet<>();
-        basketItemSet.add(basketItem1);
-        basketItemSet.add(basketItem2);
+        Map<Long, BasketItem> goodIdToBasketItemMap = new HashMap<>();
+        goodIdToBasketItemMap.put(basketItem1.getProductId(), basketItem1);
+        goodIdToBasketItemMap.put(basketItem2.getProductId(), basketItem2);
 
         Basket expectedBasket = Basket.builder()
                 .id(basketId)
-                .basketItems(basketItemSet)
+                .goodIdToBasketItemMap(goodIdToBasketItemMap)
                 .build();
 
         when(basketRepository.findById(basketId)).thenReturn(Mono.just(repositoryBasket));
@@ -100,5 +101,13 @@ class BasketServiceImplTest {
                 .verifyComplete();
 
     }
+
+    /*@Test
+    public void addProductToBasket_shouldAddProductToBasket_whenProductNotInBasket(){
+        Long basketId = 1l;
+
+        Long productId = 1l;
+        Product product
+    }*/
 
 }

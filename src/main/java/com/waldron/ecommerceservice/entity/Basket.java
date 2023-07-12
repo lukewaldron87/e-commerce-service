@@ -9,7 +9,7 @@ import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Table;
 
-import java.util.Set;
+import java.util.Map;
 
 @Data
 @Builder
@@ -22,7 +22,7 @@ public class Basket {
     private Long id;
 
     @Transient
-    private Set<BasketItem> basketItems;
+    private Map<Long, BasketItem> goodIdToBasketItemMap;
 
     //this constructor allows reading from the database while ignoring the @Transient fields
     @PersistenceConstructor
