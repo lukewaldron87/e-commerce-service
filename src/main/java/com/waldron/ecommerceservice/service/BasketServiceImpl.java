@@ -41,7 +41,7 @@ public class BasketServiceImpl implements BasketService{
         return basketMono.map(basket -> {basket.setGoodIdToBasketItemMap(goodIdToBasketItemMap); return basket;});
     }
 
-    //todo createBasket with product
+    //todo (not asked for in email) createBasketForProduct
 
     private Mono<Basket> updateBasket(Mono<Basket> basketMono){
         //todo test the basket is updated in Postman
@@ -49,19 +49,18 @@ public class BasketServiceImpl implements BasketService{
     }
 
     @Override
-    public Mono<Basket> addProductToBasket(Long basketId, Long productId, int numberOfProducts) {
+    public Mono<Basket> addNumberOfProductsToBasket(Long basketId, Long productId, int numberOfProducts) {
 
+        //todo add catch for if basket doesn't exists
         Mono<Basket> basketMono = getBasketForId(basketId);
 
         // increment product count
         basketMono.filter(basket -> basket.isProductInBasket(productId))
-                .flatMap(basket -> Mono.just(basket.getBasketItemForProductId(productId)))
-                //.doOnNext(basketItem -> basketItem.setProductId(99l)) //THIS WORKS
+                .map(basket -> basket.getBasketItemForProductId(productId))
                 .doOnNext(basketItem -> {
                     BasketItem updatedBasketItem = basketItemService.addNumberOfProducts(basketItem, numberOfProducts);
                     basketItem.setProductCount(updatedBasketItem.getProductCount());
-                })
-                .subscribe();
+                }).subscribe();
 
         // create new
         basketMono.filter(basket -> !basket.isProductInBasket(productId))
@@ -82,11 +81,35 @@ public class BasketServiceImpl implements BasketService{
         return updateBasket(basketMono);
     }
 
+    @Override
+    public Mono<Basket> reduceNumberOfProductsInBasket(Long basketId, Long productId, int numberOfProducts) {
+
+        //todo add catch for if basket doesn't exists
+        Mono<Basket> basketMono = getBasketForId(basketId);
+
+        // remove basket item from basket
+        basketMono.filter(basket -> shouldRemoveProduct(productId, numberOfProducts, basket))
+                .map(basket -> basket.removeBasketItem(productId))
+                .doOnNext(basketItem -> basketItemService.deleteBasketItemForId(basketItem.getId()).subscribe())
+                .subscribe();
+
+        //decrement if number less than existing
+        basketMono.filter(basket -> ! shouldRemoveProduct(productId, numberOfProducts, basket))
+                .map(basket -> basket.getBasketItemForProductId(productId))
+                .doOnNext(basketItem -> {
+                    BasketItem updatedBasketItem = basketItemService.reduceNumberOfProducts(basketItem, numberOfProducts);
+                    basketItem.setProductCount(updatedBasketItem.getProductCount());
+                })
+                .subscribe();
+
+        return basketMono;
+    }
+
+    private static boolean shouldRemoveProduct(Long productId, int numberOfProducts, Basket basket) {
+        return numberOfProducts >= basket.getBasketItemForProductId(productId).getProductCount();
+    }
+
     //todo get total
 
-    //todo remove x number of products
-
-    //todo remove product
-
-    //todo add get Map <Product, Integer> productsToCountMap
+    //todo (nice to have) add get Map <Product, Integer> productsToCountMap
 }

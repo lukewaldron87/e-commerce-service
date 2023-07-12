@@ -42,6 +42,12 @@ public class BasketItemServiceImpl implements BasketItemService {
                 });
     }
 
+    /**
+     * retrieves product mapped to this BasketItem and adds it
+     *
+     * @param basketItem
+     * @return
+     */
     private Mono<BasketItem> addProductToBasketItem(BasketItem basketItem) {
         // interacting directly with repository instead of service as no business logic required when fetching product by ID
         return productRepository.findById(basketItem.getProductId())
@@ -76,6 +82,16 @@ public class BasketItemServiceImpl implements BasketItemService {
         return basketItem;
     }
 
+    @Override
+    public BasketItem reduceNumberOfProducts(BasketItem basketItem, int numberOfProducts) {
+        //todo refactor to functional solution
+        int currentProductCount = basketItem.getProductCount();
+        basketItem.setProductCount(currentProductCount-numberOfProducts);
+        updatedBasketItem(basketItem).subscribe();
+        return basketItem;
+    }
+
+
     private static void verifyProductId(BasketItem basketItem) {
         //todo throw exception if Product missing
         if (basketItem.getProductId() == null) {
@@ -94,5 +110,5 @@ public class BasketItemServiceImpl implements BasketItemService {
         return basketItemRepository.deleteById(basketItemId);
     }
 
-    // todo add getTotalPrice or does this go in the entity???
+    // todo add getTotalPrice
 }

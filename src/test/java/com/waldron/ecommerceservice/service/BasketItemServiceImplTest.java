@@ -273,6 +273,18 @@ class BasketItemServiceImplTest {
     }
 
     @Test
+    public void reduceNumberOfProducts_shouldRemoveGivenNumberOfProducts(){
+        BasketItem basketItem = BasketItem.builder()
+                .id(1l)
+                .productCount(3).build();
+
+        when(basketItemRepository.save(basketItem)).thenReturn(Mono.just(basketItem));
+
+        BasketItem returnedBasketItem = basketItemService.reduceNumberOfProducts(basketItem, 2);
+        assertEquals(1, returnedBasketItem.getProductCount());
+    }
+
+    @Test
     public void deleteBasketItemForId_shouldPassIdToRepository(){
 
         Long basketItemId = 1l;

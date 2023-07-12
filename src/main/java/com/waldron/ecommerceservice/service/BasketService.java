@@ -7,5 +7,7 @@ public interface BasketService {
 
     Mono<Basket> getBasketForId(Long basketId);
 
-    Mono<Basket> addProductToBasket(Long basketId, Long productId, int numberOfProducts);
+    Mono<Basket> addNumberOfProductsToBasket(Long basketId, Long productId, int numberOfProducts);
+
+    Mono<Basket> reduceNumberOfProductsInBasket(Long basketId, Long productId, int numberOfProducts);
 }

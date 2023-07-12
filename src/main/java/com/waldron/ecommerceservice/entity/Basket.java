@@ -42,4 +42,8 @@ public class Basket {
         return goodIdToBasketItemMap.containsKey(productId);
     }
 
+    public BasketItem removeBasketItem(Long productId){
+        return goodIdToBasketItemMap.remove(productId);
+    }
+
 }

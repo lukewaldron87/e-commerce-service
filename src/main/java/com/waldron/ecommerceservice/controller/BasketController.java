@@ -20,11 +20,22 @@ public class BasketController {
     }
 
     // regression tested add new and add existing product
-    @PatchMapping("/{basketId}/products/{productId}/quantity/{quantity}")
-    public Mono<Basket> addProductToBasket(@PathVariable Long basketId,
-                                           @PathVariable Long productId,
-                                           @PathVariable int quantity){
+    //todo check if /add is okay
+    @PatchMapping("/{basketId}/products/{productId}/quantity/{quantity}/add")
+    public Mono<Basket> addNumberOfProductsToBasket(@PathVariable Long basketId,
+                                                    @PathVariable Long productId,
+                                                    @PathVariable int quantity){
 
-        return basketService.addProductToBasket(basketId, productId, quantity);
+        return basketService.addNumberOfProductsToBasket(basketId, productId, quantity);
+    }
+
+    // regression tested remove and reduce
+    //todo check if /reduce is okay
+    @PatchMapping("/{basketId}/products/{productId}/quantity/{quantity}/reduce")
+    public Mono<Basket> reduceNumberOfProductsInBasket(@PathVariable Long basketId,
+                                                       @PathVariable Long productId,
+                                                       @PathVariable int quantity){
+
+        return basketService.reduceNumberOfProductsInBasket(basketId, productId, quantity);
     }
 }

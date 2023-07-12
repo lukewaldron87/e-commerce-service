@@ -18,5 +18,7 @@ public interface BasketItemService {
 
     BasketItem addNumberOfProducts(BasketItem basketItem, int numberOfProducts);
 
+    BasketItem reduceNumberOfProducts(BasketItem basketItem, int numberOfProducts);
+
     Mono<Void> deleteBasketItemForId(Long basketItemId);
 }

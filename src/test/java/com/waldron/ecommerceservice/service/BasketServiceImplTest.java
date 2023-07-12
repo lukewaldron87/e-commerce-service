@@ -15,6 +15,7 @@ import reactor.test.StepVerifier;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
@@ -64,14 +65,14 @@ class BasketServiceImplTest {
     }*/
 
     @Test
-    public void addProductToBasket_shouldAddNewBasketItem_whenProductNotInBasket(){
+    public void addNumberOfProductsToBasket_shouldAddNewBasketItem_whenProductNotInBasket(){
         int numberOfProducts = 1;
         Product productToAdd = Product.builder().id(3l).build();
         Basket basket = mockSuccessfulGetBasketForId();
 
         when(basketItemService.createBasketItem(any())).thenReturn(Mono.just(BasketItem.builder().build()));
 
-        Mono<Basket> returnedBasket = basketService.addProductToBasket(basket.getId(),
+        Mono<Basket> returnedBasket = basketService.addNumberOfProductsToBasket(basket.getId(),
                                                                        productToAdd.getId(),
                                                                        numberOfProducts);
 
@@ -84,7 +85,7 @@ class BasketServiceImplTest {
     }
 
     @Test
-    public void addProductToBasket_shouldAddNumberOfProductsBasketItem_whenProductInBasket(){
+    public void addNumberOfProductsToBasket_shouldAddNumberOfProductsBasketItem_whenProductInBasket(){
         int numberOfProducts = 1;
         Long productId = 1l;
         Basket basket = mockSuccessfulGetBasketForId();
@@ -93,13 +94,58 @@ class BasketServiceImplTest {
         BasketItem updatedBasketItem = BasketItem.builder().productCount(2).build();
         when(basketItemService.addNumberOfProducts(any(), anyInt())).thenReturn(updatedBasketItem);
 
-        Mono<Basket> returnedBasket = basketService.addProductToBasket(basket.getId(),
+        Mono<Basket> returnedBasket = basketService.addNumberOfProductsToBasket(basket.getId(),
                 productToAdd.getId(),
                 numberOfProducts);
 
         StepVerifier.create(returnedBasket)
                 .assertNext(basket1 -> assertEquals(updatedBasketItem.getProductCount(),
                         basket1.getBasketItemForProductId(productToAdd.getId()).getProductCount())
+                )
+                .verifyComplete();
+    }
+
+    @Test
+    public void reduceNumberOfProductsInBasket_shouldRemoveBasketItem_whenNumberOfProductsEqualToNumberInBasket(){
+        int numberOfProducts = 1;
+        Long productId = 1l;
+        Basket basket = mockSuccessfulGetBasketForId();
+
+        Mono<Basket> basketMono = basketService.reduceNumberOfProductsInBasket(basket.getId(), productId, numberOfProducts);
+
+        StepVerifier.create(basketMono)
+                .assertNext(basketToVerify -> assertFalse(basketToVerify.isProductInBasket(productId)))
+                .verifyComplete();;
+    }
+
+    @Test
+    public void reduceNumberOfProductsInBasket_shouldRemoveBasketItem_whenNumberOfProductsGreaterThanNumberInBasket(){
+        int numberOfProducts = 2;
+        Long productId = 1l;
+        Basket basket = mockSuccessfulGetBasketForId();
+
+        Mono<Basket> basketMono = basketService.reduceNumberOfProductsInBasket(basket.getId(), productId, numberOfProducts);
+
+        StepVerifier.create(basketMono)
+                .assertNext(basketToVerify -> assertFalse(basketToVerify.isProductInBasket(productId)))
+                .verifyComplete();;
+    }
+
+    @Test
+    public void reduceNumberOfProductsInBasket_shouldReduceTheNumbersOfProducts_whenNumberOfProductsLessThanNumberInBasket(){
+        int numberOfProducts = 2;
+        Long productId = 1l;
+        Basket basket = mockSuccessfulGetBasketForId();
+        basket.getBasketItemForProductId(productId).setProductCount(3);
+
+        BasketItem updatedBasketItem = BasketItem.builder().productCount(1).build();
+        when(basketItemService.reduceNumberOfProducts(any(), anyInt())).thenReturn(updatedBasketItem);
+
+        Mono<Basket> basketMono = basketService.reduceNumberOfProductsInBasket(basket.getId(), productId, numberOfProducts);
+
+        StepVerifier.create(basketMono)
+                .assertNext(basketToVerify ->
+                        assertEquals(1, basketToVerify.getBasketItemForProductId(productId).getProductCount())
                 )
                 .verifyComplete();
     }
@@ -143,5 +189,4 @@ class BasketServiceImplTest {
 
         return expectedBasket;
     }
-
 }
