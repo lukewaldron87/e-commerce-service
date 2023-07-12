@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
+
 @Service
 public class BasketItemServiceImpl implements BasketItemService {
 
@@ -110,5 +112,10 @@ public class BasketItemServiceImpl implements BasketItemService {
         return basketItemRepository.deleteById(basketItemId);
     }
 
-    // todo add getTotalPrice
+    @Override
+    public BigDecimal getTotalPrice(BasketItem basketItem) {
+        BigDecimal price = basketItem.getProduct().getPrice();
+        int productCount = basketItem.getProductCount();
+        return price.multiply(BigDecimal.valueOf(productCount));
+    }
 }

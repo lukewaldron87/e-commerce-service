@@ -295,4 +295,25 @@ class BasketItemServiceImplTest {
         verify(basketItemRepository).deleteById(argumentCaptor.capture());
         assertEquals(basketItemId, argumentCaptor.getValue());
     }
+
+    @Test
+    public void getTotalPrice_shouldReturnSumOrProductsPrice(){
+
+        Long basketItemId = 1l;
+        Long productId = 2l;
+        Product product = Product.builder()
+                .id(productId)
+                .name("Book")
+                .price(BigDecimal.valueOf(10.00))
+                .build();
+        BasketItem basketItem = BasketItem.builder()
+                .id(basketItemId)
+                .product(product)
+                .productCount(5)
+                .build();
+
+        BigDecimal price = basketItemService.getTotalPrice(basketItem);
+
+        assertEquals(BigDecimal.valueOf(50.00), price);
+    }
 }
