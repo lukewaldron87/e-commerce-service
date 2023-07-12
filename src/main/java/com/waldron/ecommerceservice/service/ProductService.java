@@ -8,6 +8,8 @@ public interface ProductService {
 
     Flux<Product> getProducts();
 
+    Mono<Product> getProductForId(Long id);
+
     Mono<Product> createProduct(Product product);
 
     Mono<Product> updateProductForId(Long productId, Product product);

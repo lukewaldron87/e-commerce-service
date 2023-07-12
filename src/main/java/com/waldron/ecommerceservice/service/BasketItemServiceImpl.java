@@ -64,10 +64,16 @@ public class BasketItemServiceImpl implements BasketItemService {
 
     @Override
     public Mono<BasketItem> updatedBasketItem(BasketItem updatedBasketItem) {
-
-        //todo add BasketItem mapping
-
         return basketItemRepository.save(updatedBasketItem);
+    }
+
+    @Override
+    public BasketItem addNumberOfProducts(BasketItem basketItem, int numberOfProducts) {
+        //todo refactor to functional solution
+        int currentProductCount = basketItem.getProductCount();
+        basketItem.setProductCount(currentProductCount+numberOfProducts);
+        updatedBasketItem(basketItem).subscribe();
+        return basketItem;
     }
 
     private static void verifyProductId(BasketItem basketItem) {
@@ -82,10 +88,6 @@ public class BasketItemServiceImpl implements BasketItemService {
             basketItem.setProductCount(1);
         }
     }
-
-    // todo add x number of product or should it be an update method?
-    //or add x number of product and update
-    // or does this go in the entity???
 
     @Override
     public Mono<Void> deleteBasketItemForId(Long basketItemId) {

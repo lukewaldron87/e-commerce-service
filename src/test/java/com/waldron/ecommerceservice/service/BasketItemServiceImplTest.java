@@ -236,7 +236,7 @@ class BasketItemServiceImplTest {
     }
 
     @Test
-    public void updateBasketItem_shouldPassBasketItemToRepository(){
+    public void updatedBasketItem_shouldPassBasketItemToRepository(){
 
         Long basketItemId = 1l;
         Long productId = 2l;
@@ -258,6 +258,18 @@ class BasketItemServiceImplTest {
         ArgumentCaptor<BasketItem> argumentCaptor = ArgumentCaptor.forClass(BasketItem.class);
         verify(basketItemRepository).save(argumentCaptor.capture());
         assertEquals(updatedBasketItem, argumentCaptor.getValue());
+    }
+
+    @Test
+    public void addNumberOfProducts_shouldAddGivenNumberOfProducts(){
+        BasketItem basketItem = BasketItem.builder()
+                .id(1l)
+                .productCount(1).build();
+
+        when(basketItemRepository.save(basketItem)).thenReturn(Mono.just(basketItem));
+
+        BasketItem returnedBasketItem = basketItemService.addNumberOfProducts(basketItem, 1);
+        assertEquals(2, returnedBasketItem.getProductCount());
     }
 
     @Test

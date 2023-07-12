@@ -51,6 +51,28 @@ class ProductServiceImplTest {
     }
 
     @Test
+    public void getProductForId_shouldReturnCorrectProduct_whenReturnedFromRepository(){
+        Product product = Product.builder().id(1l).build();
+
+        when(productRepository.findById(product.getId())).thenReturn(Mono.just(product));
+
+        StepVerifier.create(productService.getProductForId(product.getId()))
+                .expectNext(product)
+                .verifyComplete();
+    }
+
+    @Test
+    public void getProductForId_shouldReturnNotFoundException_whenEmptyMonoReturnedFromRepository(){
+        long productId = 1l;
+
+        when(productRepository.findById(productId)).thenReturn(Mono.empty());
+
+        StepVerifier.create(productService.getProductForId(productId))
+                .expectError(NotFoundException.class)
+                .verify();
+    }
+
+    @Test
     public void createProduct_shouldPassNewProductToRepository(){
         Product product = Product.builder()
                 .name("Book 1")

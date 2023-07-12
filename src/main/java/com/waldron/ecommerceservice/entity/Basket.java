@@ -30,4 +30,16 @@ public class Basket {
         this.id = id;
     }
 
+    public void addBasketItemForProductId(Long productId, BasketItem basketItem){
+        goodIdToBasketItemMap.put(productId, basketItem);
+    }
+
+    public BasketItem getBasketItemForProductId(Long productId){
+        return goodIdToBasketItemMap.get(productId);
+    }
+
+    public boolean isProductInBasket(Long productId){
+        return goodIdToBasketItemMap.containsKey(productId);
+    }
+
 }

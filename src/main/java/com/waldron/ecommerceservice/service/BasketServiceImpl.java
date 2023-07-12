@@ -3,18 +3,13 @@ package com.waldron.ecommerceservice.service;
 import com.waldron.ecommerceservice.entity.Basket;
 import com.waldron.ecommerceservice.entity.BasketItem;
 import com.waldron.ecommerceservice.exception.NotFoundException;
-import com.waldron.ecommerceservice.repository.BasketItemRepository;
 import com.waldron.ecommerceservice.repository.BasketRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class BasketServiceImpl implements BasketService{
@@ -24,6 +19,9 @@ public class BasketServiceImpl implements BasketService{
 
     @Autowired
     private BasketItemService basketItemService;
+
+    @Autowired
+    private ProductService productService;
 
     @Override
     public Mono<Basket> getBasketForId(Long basketId) {
@@ -43,9 +41,48 @@ public class BasketServiceImpl implements BasketService{
         return basketMono.map(basket -> {basket.setGoodIdToBasketItemMap(goodIdToBasketItemMap); return basket;});
     }
 
-    //todo get total
+    //todo createBasket with product
 
-    //todo add x number of products
+    private Mono<Basket> updateBasket(Mono<Basket> basketMono){
+        //todo test the basket is updated in Postman
+        return basketMono.doOnNext(basket -> basketRepository.save(basket));
+    }
+
+    @Override
+    public Mono<Basket> addProductToBasket(Long basketId, Long productId, int numberOfProducts) {
+
+        Mono<Basket> basketMono = getBasketForId(basketId);
+
+        // increment product count
+        basketMono.filter(basket -> basket.isProductInBasket(productId))
+                .flatMap(basket -> Mono.just(basket.getBasketItemForProductId(productId)))
+                //.doOnNext(basketItem -> basketItem.setProductId(99l)) //THIS WORKS
+                .doOnNext(basketItem -> {
+                    BasketItem updatedBasketItem = basketItemService.addNumberOfProducts(basketItem, numberOfProducts);
+                    basketItem.setProductCount(updatedBasketItem.getProductCount());
+                })
+                .subscribe();
+
+        // create new
+        basketMono.filter(basket -> !basket.isProductInBasket(productId))
+                .map(basket -> {
+                    BasketItem basketItem = BasketItem.builder()
+                            .productId(productId)
+                            //todo how to add product from MONO
+                            //.product(product)
+                            .productCount(numberOfProducts)
+                            .basketId(basketId)
+                            .build();
+                    basketItemService.createBasketItem(basketItem).subscribe();
+                    basket.addBasketItemForProductId(productId, basketItem);
+                    return basket;
+                }).subscribe();
+
+        // todo only need to update the basket if I'm adding a new BasketItem
+        return updateBasket(basketMono);
+    }
+
+    //todo get total
 
     //todo remove x number of products
 

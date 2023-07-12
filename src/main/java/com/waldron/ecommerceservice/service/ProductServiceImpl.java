@@ -19,6 +19,14 @@ public class ProductServiceImpl implements ProductService{
         return productRepository.findAll();
     }
 
+    private static String PRODUCT_NOT_FOUND_MESSAGE = "Product not found";
+
+    @Override
+    public Mono<Product> getProductForId(Long id) {
+        return productRepository.findById(id)
+                .switchIfEmpty(Mono.error(new NotFoundException(PRODUCT_NOT_FOUND_MESSAGE)));
+    }
+
     @Override
     public Mono<Product> createProduct(Product product) {
         return productRepository.save(product);
@@ -35,7 +43,7 @@ public class ProductServiceImpl implements ProductService{
     public Mono<Product> updateProductForId(Long productId, Product product) {
 
         return productRepository.findById(productId)
-                .switchIfEmpty(Mono.error(new NotFoundException("Product not found")))
+                .switchIfEmpty(Mono.error(new NotFoundException(PRODUCT_NOT_FOUND_MESSAGE)))
                 // todo add mapping method for update
                 .map(foundProduct -> {
                     foundProduct.setName(product.getName());
@@ -49,6 +57,6 @@ public class ProductServiceImpl implements ProductService{
     public Mono<Void> deleteProductForId(Long productId) {
         return productRepository.deleteById(productId);
         //todo create response for not found
-                //.switchIfEmpty(Mono.error(new NotFoundException("Product not found")))
+                //.switchIfEmpty(Mono.error(new NotFoundException(PRODUCT_NOT_FOUND_EXCEPTION)))
     }
 }
