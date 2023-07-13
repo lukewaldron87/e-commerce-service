@@ -115,6 +115,22 @@ class BasketItemServiceImplTest {
     public void getBasketItemsForBasketId_shouldReturnAFluxOfBasketItems(){
 
         Long basketId = 1l;
+        BasketItem basketItem1 = BasketItem.builder().basketId(basketId).build();
+        BasketItem basketItem2 = BasketItem.builder().basketId(basketId).build();
+
+        when(basketItemRepository.findByBasketId(basketId)).thenReturn(Flux.just(basketItem1, basketItem2));
+
+        StepVerifier.create(basketItemService.getBasketItemsForBasketId(basketId))
+                .expectNext(basketItem1)
+                .expectNext(basketItem2)
+                .verifyComplete();
+
+    }
+
+    @Test
+    public void getBasketItemsForBasketId_shouldAddCorrectProductToBasketItem(){
+
+        Long basketId = 1l;
         Long productId = 2l;
         BasketItem basketItem1 = BasketItem.builder().basketId(basketId).productId(productId).build();
         BasketItem basketItem2 = BasketItem.builder().basketId(basketId).productId(productId).build();
@@ -132,22 +148,6 @@ class BasketItemServiceImplTest {
                 .expectNext(expectedBasketItem1)
                 .expectNext(expectedBasketItem2)
                 .verifyComplete();
-    }
-
-    @Test
-    public void getBasketItemsForBasketId_shouldAddCorrectProductToBasketItem(){
-
-        Long basketId = 1l;
-        BasketItem basketItem1 = BasketItem.builder().basketId(basketId).build();
-        BasketItem basketItem2 = BasketItem.builder().basketId(basketId).build();
-
-        when(basketItemRepository.findByBasketId(basketId)).thenReturn(Flux.just(basketItem1, basketItem2));
-
-        StepVerifier.create(basketItemService.getBasketItemsForBasketId(basketId))
-                .expectNext(basketItem1)
-                .expectNext(basketItem2)
-                .verifyComplete();
-
     }
 
     @Test

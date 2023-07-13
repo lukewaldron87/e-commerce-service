@@ -23,7 +23,7 @@ public class Order {
     private Long id;
 
     @Transient
-    private Set<BasketItem> BasketItems;
+    private Set<OrderItem> orderItems;
 
     @Column("status")
     private Status status;

@@ -51,6 +51,7 @@ public class BasketItemServiceImpl implements BasketItemService {
                 });
     }
 
+    //todo change to getProduct in service
     private Mono<BasketItem> addProductToBasketItem(BasketItem basketItem) {
         // interacting directly with repository instead of service as no business logic required when fetching product by ID
         return productRepository.findById(basketItem.getProductId())
