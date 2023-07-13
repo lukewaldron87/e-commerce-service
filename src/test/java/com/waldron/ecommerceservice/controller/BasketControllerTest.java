@@ -10,6 +10,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
+
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @WebFluxTest(BasketController.class)
@@ -40,6 +43,23 @@ class BasketControllerTest {
                 .expectStatus().isOk()
                 .expectBody(Basket.class)
                 .isEqualTo(expectedBasket);
+    }
+
+
+    @Test
+    public void getTotalPriceForBasketId_shouldGetBigDecimalFromService(){
+
+        Long basketId = 1l;
+        BigDecimal expectedPrice = BigDecimal.valueOf(19.99);
+
+        when(basketService.getTotalPriceForBasketId(basketId)).thenReturn(Mono.just(expectedPrice));
+
+        webClient.get().uri(BASKETS_URI+"/"+basketId+"/total")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(BigDecimal.class)
+                .isEqualTo(expectedPrice);
     }
 
     @Test
