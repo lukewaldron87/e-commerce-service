@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
+
 @RestController
 @RequestMapping("/orders")
 public class OrderController {
@@ -20,5 +22,11 @@ public class OrderController {
     @GetMapping("/{id}")
     public Mono<Order> getOrderForId(@PathVariable Long id){
         return orderService.getOrderForId(id);
+    }
+
+    // manually tested
+    @GetMapping("/{id}/total")
+    public Mono<BigDecimal> getTotalPriceForOrderId(@PathVariable Long id){
+        return orderService.getTotalPriceForOrderId(id);
     }
 }

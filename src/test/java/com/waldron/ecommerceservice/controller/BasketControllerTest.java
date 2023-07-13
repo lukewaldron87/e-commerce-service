@@ -44,7 +44,6 @@ class BasketControllerTest {
                 .isEqualTo(expectedBasket);
     }
 
-
     @Test
     public void getTotalPriceForBasketId_shouldGetBigDecimalFromService(){
 
