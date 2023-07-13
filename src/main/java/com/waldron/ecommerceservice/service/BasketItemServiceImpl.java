@@ -1,7 +1,6 @@
 package com.waldron.ecommerceservice.service;
 
 import com.waldron.ecommerceservice.entity.BasketItem;
-import com.waldron.ecommerceservice.entity.Product;
 import com.waldron.ecommerceservice.exception.NotFoundException;
 import com.waldron.ecommerceservice.repository.BasketItemRepository;
 import com.waldron.ecommerceservice.repository.ProductRepository;
@@ -33,6 +32,14 @@ public class BasketItemServiceImpl implements BasketItemService {
                 });
     }
 
+    /**
+     * Returns all basket items associated with the given basket
+     *
+     * poor loose coupling but needed to allow joining entities/tables and maintain non-blocking state
+     *
+     * @param basketId the id of the basket
+     * @return all basket items associated with the given basket
+     */
     @Override
     public Flux<BasketItem> getBasketItemsForBasketId(Long basketId) {
         return basketItemRepository.findByBasketId(basketId)
@@ -44,12 +51,6 @@ public class BasketItemServiceImpl implements BasketItemService {
                 });
     }
 
-    /**
-     * retrieves product mapped to this BasketItem and adds it
-     *
-     * @param basketItem
-     * @return
-     */
     private Mono<BasketItem> addProductToBasketItem(BasketItem basketItem) {
         // interacting directly with repository instead of service as no business logic required when fetching product by ID
         return productRepository.findById(basketItem.getProductId())
@@ -68,6 +69,19 @@ public class BasketItemServiceImpl implements BasketItemService {
         verifyProductCount(basketItem);
 
         return basketItemRepository.save(basketItem);
+    }
+
+    private static void verifyProductId(BasketItem basketItem) {
+        //todo throw exception if Product missing
+        if (basketItem.getProductId() == null) {
+            basketItem.setProductId(basketItem.getProduct().getId());
+        }
+    }
+
+    private static void verifyProductCount(BasketItem basketItem) {
+        if (basketItem.getProductCount() == 0) {
+            basketItem.setProductCount(1);
+        }
     }
 
     @Override
@@ -91,20 +105,6 @@ public class BasketItemServiceImpl implements BasketItemService {
         basketItem.setProductCount(currentProductCount-numberOfProducts);
         updatedBasketItem(basketItem).subscribe();
         return basketItem;
-    }
-
-
-    private static void verifyProductId(BasketItem basketItem) {
-        //todo throw exception if Product missing
-        if (basketItem.getProductId() == null) {
-            basketItem.setProductId(basketItem.getProduct().getId());
-        }
-    }
-
-    private static void verifyProductCount(BasketItem basketItem) {
-        if (basketItem.getProductCount() == 0) {
-            basketItem.setProductCount(1);
-        }
     }
 
     @Override

@@ -53,10 +53,18 @@ public class ProductServiceImpl implements ProductService{
                 .flatMap(updatedProduct -> productRepository.save(updatedProduct));
     }
 
+    /**
+     * Currently delete only works for products that are not associated with a basket or order
+     *
+     * @param productId
+     * @return
+     */
     @Override
     public Mono<Void> deleteProductForId(Long productId) {
         return productRepository.deleteById(productId);
         //todo create response for not found
                 //.switchIfEmpty(Mono.error(new NotFoundException(PRODUCT_NOT_FOUND_EXCEPTION)))
+
+        //todo remove product from basket or update product to unusable status (delete not specifically requested)
     }
 }

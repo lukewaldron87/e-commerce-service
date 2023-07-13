@@ -6,15 +6,11 @@ import com.waldron.ecommerceservice.exception.NotFoundException;
 import com.waldron.ecommerceservice.repository.BasketRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class BasketServiceImpl implements BasketService{
@@ -48,11 +44,6 @@ public class BasketServiceImpl implements BasketService{
 
     //todo (not asked for in email) createBasketForProduct
 
-    private Mono<Basket> updateBasket(Mono<Basket> basketMono){
-        //todo test the basket is updated in Postman
-        return basketMono.doOnNext(basket -> basketRepository.save(basket));
-    }
-
     @Override
     public Mono<Basket> addNumberOfProductsToBasket(Long basketId, Long productId, int numberOfProducts) {
 
@@ -84,6 +75,10 @@ public class BasketServiceImpl implements BasketService{
 
         // todo only need to update the basket if I'm adding a new BasketItem
         return updateBasket(basketMono);
+    }
+
+    private Mono<Basket> updateBasket(Mono<Basket> basketMono){
+        return basketMono.doOnNext(basket -> basketRepository.save(basket));
     }
 
     @Override
