@@ -12,6 +12,8 @@ public interface OrderItemService {
 
     Mono<OrderItem> createOrderItem(OrderItem newOrderItem);
 
+    //todo createOrderItemFromBasketItem
+
     Mono<Void> deleteOrderItemForId(Long orderItemId);
 
     BigDecimal getTotalPrice(OrderItem orderItem);
