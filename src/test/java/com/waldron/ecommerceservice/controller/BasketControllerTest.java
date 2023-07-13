@@ -26,7 +26,6 @@ class BasketControllerTest {
 
     private static String BASKETS_URI = "/baskets";
 
-
     @Test
     public void getBasketForId_shouldGetBasketFromService(){
 
