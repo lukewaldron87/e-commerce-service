@@ -16,6 +16,7 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
+    // manually tested
     @GetMapping("/{id}")
     public Mono<Order> getOrderForId(@PathVariable Long id){
         return orderService.getOrderForId(id);

@@ -7,11 +7,13 @@ import com.waldron.ecommerceservice.exception.NotFoundException;
 import com.waldron.ecommerceservice.repository.OrderItemRepository;
 import com.waldron.ecommerceservice.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 
+@Service
 public class OrderItemServiceImpl implements OrderItemService{
 
     @Autowired
