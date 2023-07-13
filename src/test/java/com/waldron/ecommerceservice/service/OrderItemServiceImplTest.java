@@ -1,10 +1,12 @@
 package com.waldron.ecommerceservice.service;
 
+import com.waldron.ecommerceservice.entity.BasketItem;
 import com.waldron.ecommerceservice.entity.OrderItem;
 import com.waldron.ecommerceservice.entity.Product;
 import com.waldron.ecommerceservice.repository.OrderItemRepository;
 import com.waldron.ecommerceservice.repository.ProductRepository;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -12,7 +14,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.math.BigDecimal;
+
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -69,5 +74,56 @@ class OrderItemServiceImplTest {
 
     }
 
+    @Test
+    public void createOrderItem_shouldPassOrderItemToRepository(){
 
+        Long orderItemId = 1l;
+        Long productId = 2l;
+        Product product = Product.builder()
+                .id(productId)
+                .name("Book")
+                .price(BigDecimal.valueOf(19.99))
+                .build();
+        OrderItem newOrderItem = OrderItem.builder()
+                .id(orderItemId)
+                .product(product)
+                .productCount(1)
+                .build();
+
+        when(orderItemRepository.save(newOrderItem)).thenReturn(Mono.just(newOrderItem));
+
+        StepVerifier.create(orderItemService.createOrderItem(newOrderItem))
+                .expectNext(newOrderItem)
+                .verifyComplete();
+    }
+
+    @Test
+    public void deleteOrderItemForId_shouldPassIdToRepository(){
+        Long orderItemId = 1l;
+
+        orderItemService.deleteOrderItemForId(orderItemId);
+
+        ArgumentCaptor<Long> longCaptor = ArgumentCaptor.forClass(Long.class);
+        verify(orderItemRepository).deleteById(longCaptor.capture());
+        assertEquals(orderItemId, longCaptor.getValue());
+    }
+
+    @Test
+    public void getTotalPrice_shouldReturnSumOfProductsPrice(){
+
+        Long productId = 2l;
+        Product product = Product.builder()
+                .id(productId)
+                .name("Book")
+                .price(BigDecimal.valueOf(10.00))
+                .build();
+        OrderItem orderItem = OrderItem.builder()
+                .product(product)
+                .productCount(5)
+                .build();
+
+        BigDecimal price = orderItemService.getTotalPrice(orderItem);
+
+        assertEquals(BigDecimal.valueOf(50.00), price);
+    }
 }

@@ -6,6 +6,8 @@ import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import reactor.core.publisher.Flux;
 
+import java.math.BigDecimal;
+
 public interface OrderItemRepository extends ReactiveCrudRepository<OrderItem, Long> {
 
     @Query("SELECT ID, product_id, product_count, order_id FROM order_item WHERE order_id = :orderId")

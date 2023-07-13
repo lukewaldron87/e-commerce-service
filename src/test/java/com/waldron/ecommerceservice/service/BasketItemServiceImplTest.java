@@ -151,7 +151,7 @@ class BasketItemServiceImplTest {
     }
 
     @Test
-    public void createBasketItem_shouldPassUpdatedBasketItemToRepository(){
+    public void createBasketItem_shouldPassBasketItemToRepository(){
 
         Long basketItemId = 1l;
         Long productId = 2l;
@@ -297,7 +297,7 @@ class BasketItemServiceImplTest {
     }
 
     @Test
-    public void getTotalPrice_shouldReturnSumOrProductsPrice(){
+    public void getTotalPrice_shouldReturnSumOfProductsPrice(){
 
         Long basketItemId = 1l;
         Long productId = 2l;
