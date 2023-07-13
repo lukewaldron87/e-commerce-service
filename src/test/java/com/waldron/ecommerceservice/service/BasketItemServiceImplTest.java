@@ -112,7 +112,7 @@ class BasketItemServiceImplTest {
     }
 
     @Test
-    public void getBasketItemsForBasketId_shouldReturnAFluxOfBaskets(){
+    public void getBasketItemsForBasketId_shouldReturnAFluxOfBasketItems(){
 
         Long basketId = 1l;
         Long productId = 2l;
