@@ -33,6 +33,8 @@ class BasketServiceImplTest {
     @InjectMocks
     private BasketServiceImpl basketService;
 
+    //todo add test for get basket
+
     //todo fix test and refactor getBasketForId to functional solution
     /*@Test
     public void getBasketForId_shouldReturnError_whenBasketNotFound(){
