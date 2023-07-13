@@ -12,6 +12,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -48,7 +49,7 @@ class BasketServiceImplTest {
     @Test
     public void getBasketForId_shouldPopulateBasketItems_whenBasketItemsArePresent(){
 
-        Basket expectedBasket = mockSuccessfulGetBasketForId();
+        Basket expectedBasket = mockSuccessfullyGetBasketForId();
 
         StepVerifier.create(basketService.getBasketForId(expectedBasket.getId()))
                 .expectNext(expectedBasket)
@@ -68,7 +69,7 @@ class BasketServiceImplTest {
     public void addNumberOfProductsToBasket_shouldAddNewBasketItem_whenProductNotInBasket(){
         int numberOfProducts = 1;
         Product productToAdd = Product.builder().id(3l).build();
-        Basket basket = mockSuccessfulGetBasketForId();
+        Basket basket = mockSuccessfullyGetBasketForId();
 
         when(basketItemService.createBasketItem(any())).thenReturn(Mono.just(BasketItem.builder().build()));
 
@@ -88,7 +89,7 @@ class BasketServiceImplTest {
     public void addNumberOfProductsToBasket_shouldAddNumberOfProductsBasketItem_whenProductInBasket(){
         int numberOfProducts = 1;
         Long productId = 1l;
-        Basket basket = mockSuccessfulGetBasketForId();
+        Basket basket = mockSuccessfullyGetBasketForId();
         Product productToAdd = basket.getBasketItemForProductId(productId).getProduct();
 
         BasketItem updatedBasketItem = BasketItem.builder().productCount(2).build();
@@ -109,7 +110,7 @@ class BasketServiceImplTest {
     public void reduceNumberOfProductsInBasket_shouldRemoveBasketItem_whenNumberOfProductsEqualToNumberInBasket(){
         int numberOfProducts = 1;
         Long productId = 1l;
-        Basket basket = mockSuccessfulGetBasketForId();
+        Basket basket = mockSuccessfullyGetBasketForId();
 
         Mono<Basket> basketMono = basketService.reduceNumberOfProductsInBasket(basket.getId(), productId, numberOfProducts);
 
@@ -122,7 +123,7 @@ class BasketServiceImplTest {
     public void reduceNumberOfProductsInBasket_shouldRemoveBasketItem_whenNumberOfProductsGreaterThanNumberInBasket(){
         int numberOfProducts = 2;
         Long productId = 1l;
-        Basket basket = mockSuccessfulGetBasketForId();
+        Basket basket = mockSuccessfullyGetBasketForId();
 
         Mono<Basket> basketMono = basketService.reduceNumberOfProductsInBasket(basket.getId(), productId, numberOfProducts);
 
@@ -135,7 +136,7 @@ class BasketServiceImplTest {
     public void reduceNumberOfProductsInBasket_shouldReduceTheNumbersOfProducts_whenNumberOfProductsLessThanNumberInBasket(){
         int numberOfProducts = 2;
         Long productId = 1l;
-        Basket basket = mockSuccessfulGetBasketForId();
+        Basket basket = mockSuccessfullyGetBasketForId();
         basket.getBasketItemForProductId(productId).setProductCount(3);
 
         BasketItem updatedBasketItem = BasketItem.builder().productCount(1).build();
@@ -150,7 +151,23 @@ class BasketServiceImplTest {
                 .verifyComplete();
     }
 
-    private Basket mockSuccessfulGetBasketForId() {
+    @Test
+    public void getTotalPrice_shouldReturnTheSumOfAllProducts(){
+
+        Basket basket = mockSuccessfullyGetBasketForId();
+
+        when(basketItemService.getTotalPrice(any())).thenReturn(BigDecimal.valueOf(100.00));
+
+        Mono<BigDecimal> totalPrice = basketService.getTotalPriceForBasketId(basket.getId());
+
+       StepVerifier.create(totalPrice)
+               .assertNext(totalPriceToAssert ->
+                       assertEquals(BigDecimal.valueOf(200.00), totalPriceToAssert)
+               )
+               .verifyComplete();
+    }
+
+    private Basket mockSuccessfullyGetBasketForId() {
         Basket repositoryBasket = Basket.builder()
                 .id(1l)
                 .build();

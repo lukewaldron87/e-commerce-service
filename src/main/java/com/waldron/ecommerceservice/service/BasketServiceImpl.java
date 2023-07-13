@@ -6,10 +6,15 @@ import com.waldron.ecommerceservice.exception.NotFoundException;
 import com.waldron.ecommerceservice.repository.BasketRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class BasketServiceImpl implements BasketService{
@@ -109,7 +114,14 @@ public class BasketServiceImpl implements BasketService{
         return numberOfProducts >= basket.getBasketItemForProductId(productId).getProductCount();
     }
 
-    //todo get total
+    @Override
+    public Mono<BigDecimal> getTotalPriceForBasketId(Long basketId) {
+
+        return getBasketForId(basketId)
+                .map(basket -> basket.getGoodIdToBasketItemMap().values().stream()
+                        .map(basketItem -> basketItemService.getTotalPrice(basketItem))
+                .reduce(BigDecimal.ZERO, BigDecimal::add));
+    }
 
     //todo (nice to have) add get Map <Product, Integer> productsToCountMap
 }
