@@ -15,32 +15,30 @@ import org.springframework.data.relational.core.mapping.Table;
 @Builder
 @AllArgsConstructor
 @ToString
-@Table("basket_item")
-public class BasketItem {
+@Table("order_item")
+public class OrderItem {
 
     @Id
     private Long id;
 
-    // relationships not supported in R2DBC. I'm using a Long to store the productId foreign key
     @Column("product_id")
     private Long productId;
 
-    @Transient //ignore this field when mapping
+    @Transient
     private Product product;
 
     @Column("product_count")
     private int productCount;
 
     // ManyToOne
-    @Column("basket_id")
-    private Long basketId;
+    @Column("order_id")
+    private Long orderId;
 
-    //this constructor allows reading from the database while ignoring the @Transient fields
     @PersistenceCreator
-    public BasketItem(Long id, Long productId, int productCount, Long basketId) {
+    public OrderItem(Long id, Long productId, int productCount, Long orderId) {
         this.id = id;
         this.productId = productId;
         this.productCount = productCount;
-        this.basketId = basketId;
+        this.orderId = orderId;
     }
 }

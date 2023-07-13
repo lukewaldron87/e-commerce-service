@@ -14,3 +14,17 @@ CREATE TABLE IF NOT EXISTS basket_item(
     product_count INTEGER,
     basket_id INTEGER REFERENCES basket (id)
 );
+
+CREATE TABLE IF NOT EXISTS customer_order (
+    id SERIAL PRIMARY KEY,
+    status VARCHAR(255),
+    name VARCHAR(255),
+    address VARCHAR(255)
+);
+
+CREATE TABLE IF NOT EXISTS order_item(
+    id SERIAL PRIMARY KEY,
+    product_id INTEGER REFERENCES product (id),
+    product_count INTEGER,
+    order_id INTEGER REFERENCES customer_order (id)
+);

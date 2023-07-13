@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.ToString;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceConstructor;
+import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -25,7 +26,7 @@ public class Basket {
     private Map<Long, BasketItem> goodIdToBasketItemMap;
 
     //this constructor allows reading from the database while ignoring the @Transient fields
-    @PersistenceConstructor
+    @PersistenceCreator
     public Basket(Long id){
         this.id = id;
     }
