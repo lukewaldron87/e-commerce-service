@@ -1,5 +1,6 @@
 package com.waldron.ecommerceservice.service;
 
+import com.waldron.ecommerceservice.entity.BasketItem;
 import com.waldron.ecommerceservice.entity.OrderItem;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -12,7 +13,7 @@ public interface OrderItemService {
 
     Mono<OrderItem> createOrderItem(OrderItem newOrderItem);
 
-    //todo createOrderItemFromBasketItem
+    OrderItem mapBasketItemToOrderItem(BasketItem basketItem);
 
     Mono<Void> deleteOrderItemForId(Long orderItemId);
 

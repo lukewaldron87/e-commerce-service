@@ -1,5 +1,7 @@
 package com.waldron.ecommerceservice.service;
 
+import com.waldron.ecommerceservice.entity.Basket;
+import com.waldron.ecommerceservice.entity.BasketItem;
 import com.waldron.ecommerceservice.entity.OrderItem;
 import com.waldron.ecommerceservice.exception.NotFoundException;
 import com.waldron.ecommerceservice.repository.OrderItemRepository;
@@ -49,6 +51,15 @@ public class OrderItemServiceImpl implements OrderItemService{
     @Override
     public Mono<OrderItem> createOrderItem(OrderItem orderItem) {
         return orderItemRepository.save(orderItem);
+    }
+
+    //todo move to mapper class
+    @Override
+    public OrderItem mapBasketItemToOrderItem(BasketItem basketItem) {
+        return OrderItem.builder()
+                .productId(basketItem.getProductId())
+                .productCount(basketItem.getProductCount())
+                .build();
     }
 
     @Override

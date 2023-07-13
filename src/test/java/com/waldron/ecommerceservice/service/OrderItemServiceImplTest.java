@@ -98,6 +98,25 @@ class OrderItemServiceImplTest {
     }
 
     @Test
+    public void mapBasketItemToOrderItem_shouldCopyValuesFromBasketItem(){
+
+        Product product = Product.builder()
+                .id(1l)
+                .name("Book")
+                .price(BigDecimal.valueOf(19.99))
+                .build();
+        BasketItem basketItem = BasketItem.builder()
+                .id(1l)
+                .product(product)
+                .productCount(1)
+                .build();
+
+        OrderItem orderItem = orderItemService.mapBasketItemToOrderItem(basketItem);
+        assertEquals(basketItem.getProductId(), orderItem.getProductId());
+        assertEquals(basketItem.getProductCount(), orderItem.getProductCount());
+    }
+
+    @Test
     public void deleteOrderItemForId_shouldPassIdToRepository(){
         Long orderItemId = 1l;
 
