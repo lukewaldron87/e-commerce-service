@@ -1,2 +1,5 @@
-package com.waldron.ecommerceservice.entity;public class Status {
+package com.waldron.ecommerceservice.entity;
+
+public enum Status {
+    PREPARING, SHIPPED
 }

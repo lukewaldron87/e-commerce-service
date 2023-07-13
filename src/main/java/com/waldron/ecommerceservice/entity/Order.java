@@ -26,7 +26,7 @@ public class Order {
     private Set<BasketItem> BasketItems;
 
     @Column("status")
-    private String status;
+    private Status status;
 
     @Column("name")
     private String name;
@@ -35,7 +35,7 @@ public class Order {
     private String address;
 
     @PersistenceCreator
-    public Order(Long id, String status, String name, String address) {
+    public Order(Long id, Status status, String name, String address) {
         this.id = id;
         this.status = status;
         this.name = name;

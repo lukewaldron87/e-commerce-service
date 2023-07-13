@@ -49,8 +49,8 @@ public class DummyDataLoader {
     public CommandLineRunner loadOrders(OrderRepository repository){
 
         return args -> repository.saveAll(Arrays.asList(
-                Order.builder().status("Shipped").name("Luke Waldron").address("12 Nice Street, The Big City, Smallland, 1027B2").build(),
-                Order.builder().status("Preparing").name("John Doe").address("Apartment 6, Green Square, Universityvill, Bigland, 685Tw8").build())
+                Order.builder().status(Status.SHIPPED).name("Luke Waldron").address("12 Nice Street, The Big City, Smallland, 1027B2").build(),
+                Order.builder().status(Status.PREPARING).name("John Doe").address("Apartment 6, Green Square, Universityvill, Bigland, 685Tw8").build())
         ).blockLast(Duration.ofSeconds(10));
     }
 
