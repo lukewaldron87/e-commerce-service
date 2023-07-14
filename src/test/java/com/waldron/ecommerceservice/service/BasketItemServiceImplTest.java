@@ -297,6 +297,17 @@ class BasketItemServiceImplTest {
     }
 
     @Test
+    public void deleteBasketItemsForBasketId_shouldPassBasketIdToRepository(){
+        Long basketId = 1l;
+
+        basketItemService.deleteBasketItemsForBasketId(basketId);
+
+        ArgumentCaptor<Long> longCaptor = ArgumentCaptor.forClass(Long.class);
+        verify(basketItemRepository).deleteByBasketId(longCaptor.capture());
+        assertEquals(basketId, longCaptor.getValue());
+    }
+
+    @Test
     public void getTotalPrice_shouldReturnSumOfProductsPrice(){
 
         Long basketItemId = 1l;

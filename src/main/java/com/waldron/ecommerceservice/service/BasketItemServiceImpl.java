@@ -112,6 +112,11 @@ public class BasketItemServiceImpl implements BasketItemService {
     }
 
     @Override
+    public Mono<Void> deleteBasketItemsForBasketId(Long basketId) {
+        return basketItemRepository.deleteByBasketId(basketId);
+    }
+
+    @Override
     public BigDecimal getTotalPrice(BasketItem basketItem) {
         BigDecimal price = basketItem.getProduct().getPrice();
         int productCount = basketItem.getProductCount();
