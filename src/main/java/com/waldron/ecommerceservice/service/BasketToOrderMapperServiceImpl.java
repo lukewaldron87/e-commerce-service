@@ -20,10 +20,13 @@ public class BasketToOrderMapperServiceImpl implements BasketToOrderMapperServic
 
         Set<OrderItem> orderItems = sourceBasket.getGoodIdToBasketItemMap().values().stream()
                 .map(basketItem -> orderItemService.mapBasketItemToOrderItem(basketItem))
+                // set the order ids
+                .map(orderItem -> {
+                    orderItem.setOrderId(targetOrder.getId());
+                    return orderItem;
+                })
                 .collect(Collectors.toSet());
 
         targetOrder.setOrderItems(orderItems);
-
-        // set the order ids
     }
 }

@@ -45,28 +45,34 @@ class BasketToOrderMapperServiceImplTest {
         assertEquals(expectedOrder, newOrder);
     }
 
-    /*@Test
+    @Test
     public void mapBasketToOrder_shouldAddOrderIdToOrderItems(){
         Long basketId = 1l;
         Long product1Id = 1l;
         Long product2Id = 2l;
         Basket basket = mockBasket(basketId, product1Id, product2Id);
 
-        // return the order items without order Ids to test if they are set in mapBasketToOrder
-        when(orderItemService.mapBasketItemToOrderItem(basket.getBasketItemForProductId(product1Id)))
-                .thenReturn(OrderItem.builder().build());
-        when(orderItemService.mapBasketItemToOrderItem(basket.getBasketItemForProductId(product2Id)))
-                .thenReturn(OrderItem.builder().build());
-
         Long orderId = 1l;
+        Order expectedOrder = mockExpectedOrder(product1Id, product2Id, orderId);
+        // return the order items without order Ids to test if they are set in mapBasketToOrder
+        Iterator<OrderItem> iterator = expectedOrder.getOrderItems().iterator();
+        OrderItem orderItem1 = iterator.next();
+        orderItem1.setOrderId(null);
+        OrderItem orderItem2 = iterator.next();
+        orderItem2.setOrderId(null);
+        when(orderItemService.mapBasketItemToOrderItem(basket.getBasketItemForProductId(product1Id)))
+                .thenReturn(orderItem1);
+        when(orderItemService.mapBasketItemToOrderItem(basket.getBasketItemForProductId(product2Id)))
+                .thenReturn(orderItem2);
+
         Order newOrder = Order.builder().id(orderId).build();
 
         basketToOrderMapperService.mapBasketToOrder(basket, newOrder);
-        Iterator<OrderItem> iterator = newOrder.getOrderItems().iterator();
-        assertEquals(orderId, iterator.next().getOrderId());
-        assertEquals(orderId, iterator.next().getOrderId());
+        Iterator<OrderItem> newOrderIterator = newOrder.getOrderItems().iterator();
+        assertEquals(orderId, newOrderIterator.next().getOrderId());
+        assertEquals(orderId, newOrderIterator.next().getOrderId());
 
-    }*/
+    }
 
     private static Order mockExpectedOrder(Long product1Id, Long product2Id, Long orderId) {
         OrderItem orderItem1 = OrderItem.builder()
