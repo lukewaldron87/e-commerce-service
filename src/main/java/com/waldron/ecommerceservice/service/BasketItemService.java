@@ -22,5 +22,7 @@ public interface BasketItemService {
 
     Mono<Void> deleteBasketItemForId(Long basketItemId);
 
+    //todo deleteBasketItemsForBasketId
+
     BigDecimal getTotalPrice(BasketItem basketItem);
 }

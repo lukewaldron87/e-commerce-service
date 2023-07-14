@@ -1,6 +1,5 @@
 package com.waldron.ecommerceservice.service;
 
-import com.waldron.ecommerceservice.entity.Basket;
 import com.waldron.ecommerceservice.entity.BasketItem;
 import com.waldron.ecommerceservice.entity.OrderItem;
 import com.waldron.ecommerceservice.exception.NotFoundException;
@@ -60,6 +59,7 @@ public class OrderItemServiceImpl implements OrderItemService{
     public OrderItem mapBasketItemToOrderItem(BasketItem basketItem) {
         return OrderItem.builder()
                 .productId(basketItem.getProductId())
+                .product(basketItem.getProduct())
                 .productCount(basketItem.getProductCount())
                 .build();
     }

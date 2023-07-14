@@ -9,4 +9,6 @@ public interface BasketItemRepository extends ReactiveCrudRepository<BasketItem,
 
     @Query("SELECT id, product_id, product_count, basket_id FROM basket_item WHERE basket_id = :basketId")
     Flux<BasketItem> findByBasketId(Long basketId);
+
+    //todo deleteBasketItemsForBasketId
 }

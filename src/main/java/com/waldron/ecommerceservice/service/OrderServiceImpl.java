@@ -1,9 +1,11 @@
 package com.waldron.ecommerceservice.service;
 
+import com.waldron.ecommerceservice.entity.Basket;
 import com.waldron.ecommerceservice.entity.Order;
 import com.waldron.ecommerceservice.entity.OrderItem;
 import com.waldron.ecommerceservice.exception.NotFoundException;
 import com.waldron.ecommerceservice.repository.OrderRepository;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -20,6 +22,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private OrderItemService orderItemService;
+
+    @Autowired
+    private BasketService basketService;
 
     @Override
     public Mono<Order> getOrderForId(Long orderId) {
@@ -45,5 +50,25 @@ public class OrderServiceImpl implements OrderService {
                 .map(basket -> basket.getOrderItems().stream()
                         .map(basketItem -> orderItemService.getTotalPrice(basketItem))
                         .reduce(BigDecimal.ZERO, BigDecimal::add));
+    }
+
+    @Override
+    public Mono<Order> createOrderFromBasket(Order newOrder, Long basketId) {
+
+        // get basket
+        Mono<Basket> basket = basketService.getBasketForId(basketId);
+
+        // merge basket with newOrder
+        // use orderItemService.mapBasketItemToOrderItem
+        //todo move to mapper class??
+
+
+        // set status to PREPARING
+
+        // save Order
+
+        //delete basket and basket items (use services)
+
+        return null;
     }
 }

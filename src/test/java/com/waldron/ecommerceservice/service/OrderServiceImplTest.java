@@ -1,12 +1,15 @@
 package com.waldron.ecommerceservice.service;
 
+import com.waldron.ecommerceservice.entity.Basket;
 import com.waldron.ecommerceservice.entity.Order;
 import com.waldron.ecommerceservice.entity.OrderItem;
 import com.waldron.ecommerceservice.entity.Product;
 import com.waldron.ecommerceservice.repository.OrderRepository;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -18,6 +21,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -28,6 +32,9 @@ class OrderServiceImplTest {
 
     @Mock
     private OrderItemService orderItemService;
+
+    @Mock
+    private BasketService basketService;
 
     @InjectMocks
     private OrderServiceImpl orderService;
@@ -116,5 +123,35 @@ class OrderServiceImplTest {
         when(orderRepository.findById(orderId)).thenReturn(Mono.just(order));
         when(orderItemService.getOrderItemsForOrderId(orderId)).thenReturn(Flux.just(orderItem1, orderItem2));
         return expectedOrder;
+    }
+
+    @Test
+    public void createOrderFromBasket_shouldRequestBasketFromBasketService_whenProvidedABasketId(){
+
+        Order newOrder = Order.builder().build();
+        Long basketId = 1l;
+
+        when(basketService.getBasketForId(basketId)).thenReturn(Mono.just(Basket.builder().build()));
+
+        orderService.createOrderFromBasket(newOrder, basketId);
+
+        ArgumentCaptor<Long> longCaptor = ArgumentCaptor.forClass(Long.class);
+        verify(basketService).getBasketForId(longCaptor.capture());
+        assertEquals(basketId, longCaptor.getValue());
+    }
+
+    @Test
+    public void createOrderFromBasket_shouldMergeTheBasketAndOrderEntities(){
+
+        Order newOrder = Order.builder()
+                .name("name")
+                .address("address")
+                .build();
+        Long basketId = 1l;
+        Basket basket = Basket.builder()
+                .build();
+
+        when(basketService.getBasketForId(basketId)).thenReturn(Mono.just(Basket.builder().build()));
+
     }
 }

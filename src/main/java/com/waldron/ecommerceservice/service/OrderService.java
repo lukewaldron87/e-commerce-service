@@ -10,7 +10,11 @@ public interface OrderService {
 
     Mono<BigDecimal> getTotalPriceForOrderId(Long orderId);
 
+    //createOrderFromBasket
+    // (REST PUT/orders/baskets/{basketId} then add the rest in the body)
+    // Should delete basket and basket items at the end
+    Mono<Order> createOrderFromBasket(Order newOrder, Long basketId);
+
     //todo
-    //createOrderFromBasket (REST PUT/orders/baskets/{basketId} then add the rest in the body) Should delete basket at the end
     //setOrderStatus (nice to have)
 }

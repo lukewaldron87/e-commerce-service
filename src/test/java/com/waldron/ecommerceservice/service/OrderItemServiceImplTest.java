@@ -113,6 +113,7 @@ class OrderItemServiceImplTest {
 
         OrderItem orderItem = orderItemService.mapBasketItemToOrderItem(basketItem);
         assertEquals(basketItem.getProductId(), orderItem.getProductId());
+        assertEquals(basketItem.getProduct(), orderItem.getProduct());
         assertEquals(basketItem.getProductCount(), orderItem.getProductCount());
     }
 
