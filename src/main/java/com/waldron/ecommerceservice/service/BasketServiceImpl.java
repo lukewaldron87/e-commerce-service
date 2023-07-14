@@ -117,4 +117,10 @@ public class BasketServiceImpl implements BasketService{
                         .map(basketItem -> basketItemService.getTotalPrice(basketItem))
                         .reduce(BigDecimal.ZERO, BigDecimal::add));
     }
+
+    @Override
+    public Mono<Void> deleteBasketForId(Long basketId) {
+        return basketRepository.deleteById(basketId)
+                .then(basketItemService.deleteBasketItemsForBasketId(basketId));
+    }
 }

@@ -5,6 +5,7 @@ import com.waldron.ecommerceservice.entity.BasketItem;
 import com.waldron.ecommerceservice.entity.Product;
 import com.waldron.ecommerceservice.repository.BasketRepository;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -162,11 +163,39 @@ class BasketServiceImplTest {
 
         Mono<BigDecimal> totalPrice = basketService.getTotalPriceForBasketId(basket.getId());
 
-       StepVerifier.create(totalPrice)
-               .assertNext(totalPriceToAssert ->
-                       assertEquals(BigDecimal.valueOf(200.00), totalPriceToAssert)
-               )
-               .verifyComplete();
+        StepVerifier.create(totalPrice)
+                .assertNext(totalPriceToAssert ->
+                        assertEquals(BigDecimal.valueOf(200.00), totalPriceToAssert)
+                )
+                .verifyComplete();
+    }
+
+    @Test
+    public void deleteBasket_shouldPassBasketIdToBasketRepository(){
+        Long basketId = 1l;
+
+        when(basketRepository.deleteById(basketId)).thenReturn(Mono.empty());
+        when(basketItemService.deleteBasketItemsForBasketId(basketId)).thenReturn(Mono.empty());
+
+        basketService.deleteBasketForId(basketId);
+
+        ArgumentCaptor<Long> longCaptor = ArgumentCaptor.forClass(Long.class);
+        verify(basketRepository, times(1)).deleteById(longCaptor.capture());
+        assertEquals(basketId, longCaptor.getValue());
+    }
+
+    @Test
+    public void deleteBasket_shouldDeleteAssociatedBasketItems(){
+        Long basketId = 1l;
+
+        when(basketRepository.deleteById(basketId)).thenReturn(Mono.empty());
+        when(basketItemService.deleteBasketItemsForBasketId(basketId)).thenReturn(Mono.empty());
+
+        basketService.deleteBasketForId(basketId);
+
+        ArgumentCaptor<Long> longCaptor = ArgumentCaptor.forClass(Long.class);
+        verify(basketItemService).deleteBasketItemsForBasketId(longCaptor.capture());
+        assertEquals(basketId, longCaptor.getValue());
     }
 
     private Basket mockSuccessfullyGetBasketForId() {
