@@ -1,5 +1,6 @@
 package com.waldron.ecommerceservice.service;
 
+import com.waldron.ecommerceservice.dto.OrderDto;
 import com.waldron.ecommerceservice.entity.Basket;
 import com.waldron.ecommerceservice.entity.Order;
 import com.waldron.ecommerceservice.entity.OrderItem;
@@ -28,7 +29,7 @@ public class OrderServiceImpl implements OrderService {
     private BasketService basketService;
 
     @Autowired
-    private BasketToOrderMapperService basketToOrderMapperService;
+    private OrderMapperService orderMapperService;
 
     @Override
     public Mono<Order> getOrderForId(Long orderId) {
@@ -57,19 +58,22 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Mono<Order> createOrderFromBasket(Order newOrder, Long basketId) {
+    public Mono<Order> createOrderFromBasket(OrderDto orderDto) {
+
+        Order newOrder = orderMapperService.mapDtoToNewEntity(orderDto);
 
         // get basket
-        Mono<Basket> basket = basketService.getBasketForId(basketId);
+        Mono<Basket> basket = basketService.getBasketForId(orderDto.getBasketId());
 
         // set status to PREPARING
         newOrder.setStatus(Status.PREPARING);
 
         // save Order
         Mono<Order> orderMono = orderRepository.save(newOrder);
+        orderMono.subscribe();
 
         // merge basket with newOrder
-        basket.doOnNext(basketToMap -> basketToOrderMapperService.mapBasketToOrder(basketToMap, newOrder)).subscribe();
+        basket.doOnNext(basketToMap -> orderMapperService.mapBasketToOrder(basketToMap, newOrder)).subscribe();
 
         // save orderItems
         newOrder.getOrderItems().stream()

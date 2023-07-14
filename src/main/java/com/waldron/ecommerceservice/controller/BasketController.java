@@ -15,21 +15,17 @@ public class BasketController {
     @Autowired
     private BasketService basketService;
 
-    // manually tested
     @GetMapping("/{id}")
     public Mono<Basket> getBasketForId(@PathVariable Long id){
         return basketService.getBasketForId(id);
     }
 
-    // manually tested works perfectly
     // todo improve the output eg {total price: 19.99}
     @GetMapping("/{id}/total")
     public Mono<BigDecimal> getTotalPriceForBasketId(@PathVariable Long id){
         return basketService.getTotalPriceForBasketId(id);
     }
 
-    // manually tested add new and add existing product
-    // todo check if /add is okay
     @PatchMapping("/{basketId}/products/{productId}/quantity/{quantity}/add")
     public Mono<Basket> addNumberOfProductsToBasket(@PathVariable Long basketId,
                                                     @PathVariable Long productId,
@@ -38,8 +34,6 @@ public class BasketController {
         return basketService.addNumberOfProductsToBasket(basketId, productId, quantity);
     }
 
-    // manually tested remove and reduce
-    // todo check if /reduce is okay
     @PatchMapping("/{basketId}/products/{productId}/quantity/{quantity}/reduce")
     public Mono<Basket> reduceNumberOfProductsInBasket(@PathVariable Long basketId,
                                                        @PathVariable Long productId,

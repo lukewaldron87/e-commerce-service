@@ -1,5 +1,6 @@
 package com.waldron.ecommerceservice.service;
 
+import com.waldron.ecommerceservice.dto.OrderDto;
 import com.waldron.ecommerceservice.entity.Basket;
 import com.waldron.ecommerceservice.entity.BasketItem;
 import com.waldron.ecommerceservice.entity.Order;
@@ -15,13 +16,26 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-class BasketToOrderMapperServiceImplTest {
+class OrderMapperServiceImplTest {
 
     @Mock
     private OrderItemServiceImpl orderItemService;
 
     @InjectMocks
-    private BasketToOrderMapperServiceImpl basketToOrderMapperService;
+    private OrderMapperServiceImpl orderMapperService;
+
+    @Test
+    public void mapDtoToNewEntity_mapDtoToEntity(){
+
+        Long basketId = 1l;
+        String name = "name";
+        String address = "address";
+        OrderDto orderDto = new OrderDto(basketId, name, address);
+
+        Order order = orderMapperService.mapDtoToNewEntity(orderDto);
+        assertEquals(name, order.getName());
+        assertEquals(address, order.getAddress());
+    }
 
     @Test
     public void mapBasketToOrder_shouldTranslateBasketItemsToOrderItems(){
@@ -41,7 +55,7 @@ class BasketToOrderMapperServiceImplTest {
 
         Order newOrder = Order.builder().id(orderId).build();
 
-        basketToOrderMapperService.mapBasketToOrder(basket, newOrder);
+        orderMapperService.mapBasketToOrder(basket, newOrder);
         assertEquals(expectedOrder, newOrder);
     }
 
@@ -67,7 +81,7 @@ class BasketToOrderMapperServiceImplTest {
 
         Order newOrder = Order.builder().id(orderId).build();
 
-        basketToOrderMapperService.mapBasketToOrder(basket, newOrder);
+        orderMapperService.mapBasketToOrder(basket, newOrder);
         Iterator<OrderItem> newOrderIterator = newOrder.getOrderItems().iterator();
         assertEquals(orderId, newOrderIterator.next().getOrderId());
         assertEquals(orderId, newOrderIterator.next().getOrderId());
