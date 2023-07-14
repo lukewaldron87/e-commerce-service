@@ -117,6 +117,4 @@ public class BasketServiceImpl implements BasketService{
                         .map(basketItem -> basketItemService.getTotalPrice(basketItem))
                         .reduce(BigDecimal.ZERO, BigDecimal::add));
     }
-
-    //todo (nice to have) add get Map <Product, Integer> productsToCountMap
 }

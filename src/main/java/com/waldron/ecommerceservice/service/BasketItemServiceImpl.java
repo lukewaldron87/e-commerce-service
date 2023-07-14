@@ -65,7 +65,6 @@ public class BasketItemServiceImpl implements BasketItemService {
 
     @Override
     public Mono<BasketItem> createBasketItem(BasketItem basketItem) {
-        //todo verify BasketItem has product or productId
         verifyProductId(basketItem);
         verifyProductCount(basketItem);
 
@@ -73,7 +72,6 @@ public class BasketItemServiceImpl implements BasketItemService {
     }
 
     private static void verifyProductId(BasketItem basketItem) {
-        //todo throw exception if Product missing
         if (basketItem.getProductId() == null) {
             basketItem.setProductId(basketItem.getProduct().getId());
         }

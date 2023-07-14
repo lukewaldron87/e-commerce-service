@@ -14,6 +14,4 @@ public interface OrderService {
 
     Mono<Order> createOrderFromBasket(OrderDto newOrder);
 
-    //todo
-    //setOrderStatus (nice to have)
 }

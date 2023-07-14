@@ -38,7 +38,7 @@ public class OrderItemServiceImpl implements OrderItemService{
                 });
     }
 
-    //todo change to getProduct in service
+    //todo change to use getProduct from productService
     private Mono<OrderItem> addProductToOrderItem(OrderItem orderItem) {
         return productRepository.findById(orderItem.getProductId())
                 .switchIfEmpty(Mono.error(new NotFoundException("Product not found")))

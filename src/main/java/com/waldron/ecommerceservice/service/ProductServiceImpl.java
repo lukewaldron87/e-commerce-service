@@ -64,7 +64,5 @@ public class ProductServiceImpl implements ProductService{
         return productRepository.deleteById(productId);
         //todo create response for not found
                 //.switchIfEmpty(Mono.error(new NotFoundException(PRODUCT_NOT_FOUND_EXCEPTION)))
-
-        //todo remove product from basket or update product to unusable status (delete not specifically requested)
     }
 }

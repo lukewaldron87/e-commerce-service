@@ -24,6 +24,5 @@ public class Product {
     private String name;
 
     @NotNull(message = "Product must have price")
-    //todo add validator for price format
     private BigDecimal price;
 }
