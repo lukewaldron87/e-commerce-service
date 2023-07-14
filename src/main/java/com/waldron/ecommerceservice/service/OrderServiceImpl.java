@@ -3,6 +3,7 @@ package com.waldron.ecommerceservice.service;
 import com.waldron.ecommerceservice.entity.Basket;
 import com.waldron.ecommerceservice.entity.Order;
 import com.waldron.ecommerceservice.entity.OrderItem;
+import com.waldron.ecommerceservice.entity.Status;
 import com.waldron.ecommerceservice.exception.NotFoundException;
 import com.waldron.ecommerceservice.repository.OrderRepository;
 import org.springframework.beans.BeanUtils;
@@ -61,15 +62,23 @@ public class OrderServiceImpl implements OrderService {
         // get basket
         Mono<Basket> basket = basketService.getBasketForId(basketId);
 
+        // set status to PREPARING
+        newOrder.setStatus(Status.PREPARING);
+
+        // save Order
+        Mono<Order> orderMono = orderRepository.save(newOrder);
+
         // merge basket with newOrder
         basket.doOnNext(basketToMap -> basketToOrderMapperService.mapBasketToOrder(basketToMap, newOrder)).subscribe();
 
-        // set status to PREPARING
+        // save orderItems
+        newOrder.getOrderItems().stream()
+                .forEach(orderItem -> orderItemService.createOrderItem(orderItem).subscribe());
 
-        // save Order
 
         //delete basket and basket items (use services)
 
-        return null;
+
+        return orderMono;
     }
 }

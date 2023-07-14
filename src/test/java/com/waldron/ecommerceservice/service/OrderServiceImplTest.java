@@ -1,14 +1,12 @@
 package com.waldron.ecommerceservice.service;
 
-import com.waldron.ecommerceservice.entity.Basket;
-import com.waldron.ecommerceservice.entity.Order;
-import com.waldron.ecommerceservice.entity.OrderItem;
-import com.waldron.ecommerceservice.entity.Product;
+import com.waldron.ecommerceservice.entity.*;
 import com.waldron.ecommerceservice.repository.OrderRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.internal.matchers.Or;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import reactor.core.publisher.Flux;
@@ -16,13 +14,13 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 class OrderServiceImplTest {
@@ -131,10 +129,14 @@ class OrderServiceImplTest {
     @Test
     public void createOrderFromBasket_shouldRequestBasketFromBasketService_whenProvidedABasketId(){
 
-        Order newOrder = Order.builder().build();
+        OrderItem orderItem1 = OrderItem.builder().id(1l).build();
+        OrderItem orderItem2 = OrderItem.builder().id(2l).build();
+        Set<OrderItem> orderItems = new HashSet<>(Arrays.asList(orderItem1, orderItem2));
+        Order newOrder = Order.builder().orderItems(orderItems).build();
         Long basketId = 1l;
 
         when(basketService.getBasketForId(basketId)).thenReturn(Mono.just(Basket.builder().build()));
+        when(orderItemService.createOrderItem(any(OrderItem.class))).thenReturn(Mono.just(OrderItem.builder().build()));
 
         orderService.createOrderFromBasket(newOrder, basketId);
 
@@ -146,7 +148,11 @@ class OrderServiceImplTest {
     @Test
     public void createOrderFromBasket_shouldMergeTheBasketAndOrderEntities(){
 
+        OrderItem orderItem1 = OrderItem.builder().id(1l).build();
+        OrderItem orderItem2 = OrderItem.builder().id(2l).build();
+        Set<OrderItem> orderItems = new HashSet<>(Arrays.asList(orderItem1, orderItem2));
         Order newOrder = Order.builder()
+                .orderItems(orderItems)
                 .name("name")
                 .address("address")
                 .build();
@@ -155,6 +161,7 @@ class OrderServiceImplTest {
                 .build();
 
         when(basketService.getBasketForId(basketId)).thenReturn(Mono.just(basket));
+        when(orderItemService.createOrderItem(any(OrderItem.class))).thenReturn(Mono.just(OrderItem.builder().build()));
 
         orderService.createOrderFromBasket(newOrder, basketId);
 
@@ -163,5 +170,71 @@ class OrderServiceImplTest {
         verify(basketToOrderMapperService).mapBasketToOrder(basketCaptor.capture(), orderCaptor.capture());
         assertEquals(basket, basketCaptor.getValue());
         assertEquals(newOrder, orderCaptor.getValue());
+    }
+
+    @Test
+    public void createOrderFromBasket_shouldSetStatusToPreparing(){
+
+        OrderItem orderItem1 = OrderItem.builder().id(1l).build();
+        OrderItem orderItem2 = OrderItem.builder().id(2l).build();
+        Set<OrderItem> orderItems = new HashSet<>(Arrays.asList(orderItem1, orderItem2));
+        Order newOrder = Order.builder().orderItems(orderItems).build();
+        Long basketId = 1l;
+        Basket basket = Basket.builder()
+                .build();
+
+        when(basketService.getBasketForId(basketId)).thenReturn(Mono.just(basket));
+        when(orderItemService.createOrderItem(any(OrderItem.class))).thenReturn(Mono.just(OrderItem.builder().build()));
+
+        orderService.createOrderFromBasket(newOrder, basketId);
+
+        assertEquals(Status.PREPARING, newOrder.getStatus());
+
+    }
+
+    @Test
+    public void createOrderFromBasket_shouldSaveTheNewOrder(){
+
+        OrderItem orderItem1 = OrderItem.builder().id(1l).build();
+        OrderItem orderItem2 = OrderItem.builder().id(2l).build();
+        Set<OrderItem> orderItems = new HashSet<>(Arrays.asList(orderItem1, orderItem2));
+        Order newOrder = Order.builder().orderItems(orderItems).build();
+        Long basketId = 1l;
+        Basket basket = Basket.builder()
+                .build();
+
+        when(basketService.getBasketForId(basketId)).thenReturn(Mono.just(basket));
+        when(orderItemService.createOrderItem(any(OrderItem.class))).thenReturn(Mono.just(OrderItem.builder().build()));
+
+        orderService.createOrderFromBasket(newOrder, basketId);
+
+        ArgumentCaptor<Order> orderCaptor = ArgumentCaptor.forClass(Order.class);
+        verify(orderRepository, times(1)).save(orderCaptor.capture());
+        assertEquals(newOrder, orderCaptor.getValue());
+
+    }
+
+    @Test
+    public void createOrderFromBasket_shouldSaveOrderItems_whenOrderContainsOrderItems(){
+
+        OrderItem orderItem1 = OrderItem.builder().id(1l).build();
+        OrderItem orderItem2 = OrderItem.builder().id(2l).build();
+        Set<OrderItem> orderItems = new HashSet<>(Arrays.asList(orderItem1, orderItem2));
+
+        Order newOrder = Order.builder().orderItems(orderItems).build();
+        Long basketId = 1l;
+        Basket basket = Basket.builder()
+                .build();
+
+        when(basketService.getBasketForId(basketId)).thenReturn(Mono.just(basket));
+        when(orderRepository.save(newOrder)).thenReturn(Mono.just(newOrder));
+        when(orderItemService.createOrderItem(any(OrderItem.class))).thenReturn(Mono.just(OrderItem.builder().build()));
+
+        StepVerifier.create(orderService.createOrderFromBasket(newOrder, basketId))
+                .expectNext(newOrder)
+                .verifyComplete();
+
+        verify(orderItemService, times(2)).createOrderItem(any(OrderItem.class));
+
     }
 }
