@@ -31,7 +31,6 @@ public class OrderController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<Order> createOrderFromBasket(@Valid @RequestBody OrderDto order) {
-        //todo why is it returning an error
         return orderService.createOrderFromBasket(order);
     }
 }

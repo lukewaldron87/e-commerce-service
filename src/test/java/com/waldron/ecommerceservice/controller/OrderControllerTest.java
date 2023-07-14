@@ -16,12 +16,10 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @WebFluxTest(OrderController.class)
 class OrderControllerTest {
@@ -75,18 +73,25 @@ class OrderControllerTest {
 
         OrderDto orderDto = new OrderDto(1l, "name", "address");
 
-        Long orderId = 1l;
-        Long productId = 1l;
-        Product product = Product.builder().id(productId).name("name").price(BigDecimal.valueOf(13.99)).build();
-        OrderItem orderItem = OrderItem.builder().id(1l).orderId(orderId).productId(productId).product(product).productCount(1).build();
-        Order expectedOrder = Order.builder()
-                .id(orderId)
-                .name("name")
-                .address("address")
-                .orderItems(new HashSet<>(Arrays.asList(orderItem)))
-                .status(Status.PREPARING).build();
+        webClient.post()
+                .uri(ORDERS_URI)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .body(Mono.just(orderDto), OrderDto.class)
+                .exchange()
+                .expectStatus().isCreated();
 
-        when(orderService.createOrderFromBasket(orderDto)).thenReturn(Mono.just(expectedOrder));
+        verify(orderService, times(1)).createOrderFromBasket(any(OrderDto.class));
+    }
+
+    @Test
+    public void createOrderFromBasket_shouldReturnOrderProvidedByService(){
+
+        OrderDto orderDto = new OrderDto(1l, "name", "address");
+
+        Order expectedOrder = Order.builder().build();
+
+        when(orderService.createOrderFromBasket(any())).thenReturn(Mono.just(expectedOrder));
 
         webClient.post()
                 .uri(ORDERS_URI)
@@ -95,12 +100,9 @@ class OrderControllerTest {
                 .body(Mono.just(orderDto), OrderDto.class)
                 .exchange()
                 .expectStatus().isCreated()
+                .expectHeader().contentType(MediaType.APPLICATION_JSON)
                 .expectBody(Order.class)
                 .isEqualTo(expectedOrder);
-
-        ArgumentCaptor<OrderDto> orderDtoCaptor = ArgumentCaptor.forClass(OrderDto.class);
-        verify(orderService).createOrderFromBasket(orderDtoCaptor.capture());
-        assertEquals(orderDto, orderDtoCaptor);
     }
 
 }
