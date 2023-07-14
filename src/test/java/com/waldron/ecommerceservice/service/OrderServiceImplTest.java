@@ -36,6 +36,9 @@ class OrderServiceImplTest {
     @Mock
     private BasketService basketService;
 
+    @Mock
+    private BasketToOrderMapperService basketToOrderMapperService;
+
     @InjectMocks
     private OrderServiceImpl orderService;
 
@@ -151,7 +154,14 @@ class OrderServiceImplTest {
         Basket basket = Basket.builder()
                 .build();
 
-        when(basketService.getBasketForId(basketId)).thenReturn(Mono.just(Basket.builder().build()));
+        when(basketService.getBasketForId(basketId)).thenReturn(Mono.just(basket));
 
+        orderService.createOrderFromBasket(newOrder, basketId);
+
+        ArgumentCaptor<Basket> basketCaptor = ArgumentCaptor.forClass(Basket.class);
+        ArgumentCaptor<Order> orderCaptor = ArgumentCaptor.forClass(Order.class);
+        verify(basketToOrderMapperService).mapBasketToOrder(basketCaptor.capture(), orderCaptor.capture());
+        assertEquals(basket, basketCaptor.getValue());
+        assertEquals(newOrder, orderCaptor.getValue());
     }
 }

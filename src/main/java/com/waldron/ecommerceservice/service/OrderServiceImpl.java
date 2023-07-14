@@ -26,6 +26,9 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private BasketService basketService;
 
+    @Autowired
+    private BasketToOrderMapperService basketToOrderMapperService;
+
     @Override
     public Mono<Order> getOrderForId(Long orderId) {
         //todo refactor to functional solution
@@ -59,9 +62,7 @@ public class OrderServiceImpl implements OrderService {
         Mono<Basket> basket = basketService.getBasketForId(basketId);
 
         // merge basket with newOrder
-        // use orderItemService.mapBasketItemToOrderItem
-        //todo move to mapper class??
-
+        basket.doOnNext(basketToMap -> basketToOrderMapperService.mapBasketToOrder(basketToMap, newOrder)).subscribe();
 
         // set status to PREPARING
 
