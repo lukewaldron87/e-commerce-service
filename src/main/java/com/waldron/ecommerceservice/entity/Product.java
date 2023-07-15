@@ -19,7 +19,6 @@ public class Product {
     @Id
     private Long id;
 
-    //todo move validation message to message file https://www.vinsguru.com/spring-webflux-validation/
     @NotNull(message = "Name can not be empty")
     private String name;
 

@@ -33,7 +33,6 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Mono<Order> getOrderForId(Long orderId) {
-        //todo refactor to functional solution
 
         Mono<Order> orderMono = orderRepository.findById(orderId)
                 .switchIfEmpty(Mono.error(new NotFoundException("Basket not found")));

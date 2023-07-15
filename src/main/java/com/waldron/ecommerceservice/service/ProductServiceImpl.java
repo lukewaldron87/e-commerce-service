@@ -44,7 +44,6 @@ public class ProductServiceImpl implements ProductService{
 
         return productRepository.findById(productId)
                 .switchIfEmpty(Mono.error(new NotFoundException(PRODUCT_NOT_FOUND_MESSAGE)))
-                // todo add mapping method for update
                 .map(foundProduct -> {
                     foundProduct.setName(product.getName());
                     foundProduct.setPrice(product.getPrice());
@@ -62,7 +61,5 @@ public class ProductServiceImpl implements ProductService{
     @Override
     public Mono<Void> deleteProductForId(Long productId) {
         return productRepository.deleteById(productId);
-        //todo create response for not found
-                //.switchIfEmpty(Mono.error(new NotFoundException(PRODUCT_NOT_FOUND_EXCEPTION)))
     }
 }

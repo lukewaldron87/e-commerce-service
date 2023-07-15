@@ -51,7 +51,6 @@ public class BasketItemServiceImpl implements BasketItemService {
                 });
     }
 
-    //todo change to getProduct in service
     private Mono<BasketItem> addProductToBasketItem(BasketItem basketItem) {
         // interacting directly with repository instead of service as no business logic required when fetching product by ID
         return productRepository.findById(basketItem.getProductId())
@@ -90,7 +89,6 @@ public class BasketItemServiceImpl implements BasketItemService {
 
     @Override
     public BasketItem addNumberOfProducts(BasketItem basketItem, int numberOfProducts) {
-        //todo refactor to functional solution
         int currentProductCount = basketItem.getProductCount();
         basketItem.setProductCount(currentProductCount+numberOfProducts);
         updatedBasketItem(basketItem).subscribe();
@@ -99,7 +97,6 @@ public class BasketItemServiceImpl implements BasketItemService {
 
     @Override
     public BasketItem reduceNumberOfProducts(BasketItem basketItem, int numberOfProducts) {
-        //todo refactor to functional solution
         int currentProductCount = basketItem.getProductCount();
         basketItem.setProductCount(currentProductCount-numberOfProducts);
         updatedBasketItem(basketItem).subscribe();
@@ -122,6 +119,4 @@ public class BasketItemServiceImpl implements BasketItemService {
         int productCount = basketItem.getProductCount();
         return price.multiply(BigDecimal.valueOf(productCount));
     }
-
-    // create
 }

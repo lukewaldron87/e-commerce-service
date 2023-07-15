@@ -28,8 +28,6 @@ public class BasketServiceImpl implements BasketService{
     @Override
     public Mono<Basket> getBasketForId(Long basketId) {
 
-        //todo refactor to functional solution
-
         Mono<Basket> basketMono = basketRepository.findById(basketId)
                 .switchIfEmpty(Mono.error(new NotFoundException("Basket not found")));
 
@@ -84,12 +82,9 @@ public class BasketServiceImpl implements BasketService{
     @Override
     public Mono<Basket> addNumberOfProductsToBasket(Long basketId, Long productId, int numberOfProducts) {
 
-        //todo add catch for if basket doesn't exists
         Mono<Basket> basketMono = getBasketForId(basketId);
         incrementProductCount(productId, numberOfProducts, basketMono);
         createNewBasketItemForProduct(basketId, productId, numberOfProducts, basketMono);
-
-        // todo only need to update the basket if I'm adding a new BasketItem
         return updateBasket(basketMono);
     }
 
@@ -110,8 +105,6 @@ public class BasketServiceImpl implements BasketService{
                 .map(basket -> {
                     BasketItem basketItem = BasketItem.builder()
                             .productId(productId)
-                            //todo how to add product from MONO
-                            //.product(product)
                             .productCount(numberOfProducts)
                             .basketId(basketId)
                             .build();
@@ -138,7 +131,6 @@ public class BasketServiceImpl implements BasketService{
     @Override
     public Mono<Basket> reduceNumberOfProductsInBasket(Long basketId, Long productId, int numberOfProducts) {
 
-        //todo add catch for if basket doesn't exists
         Mono<Basket> basketMono = getBasketForId(basketId);
         removeBasketItemFromBasket(productId, numberOfProducts, basketMono);
         reduceNumberOfProductInBasket(productId, numberOfProducts, basketMono);

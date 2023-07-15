@@ -38,7 +38,6 @@ public class OrderItemServiceImpl implements OrderItemService{
                 });
     }
 
-    //todo change to use getProduct from productService
     private Mono<OrderItem> addProductToOrderItem(OrderItem orderItem) {
         return productRepository.findById(orderItem.getProductId())
                 .switchIfEmpty(Mono.error(new NotFoundException("Product not found")))
@@ -54,7 +53,6 @@ public class OrderItemServiceImpl implements OrderItemService{
         return orderItemRepository.save(orderItem);
     }
 
-    //todo move to mapper class
     @Override
     public OrderItem mapBasketItemToOrderItem(BasketItem basketItem) {
         return OrderItem.builder()

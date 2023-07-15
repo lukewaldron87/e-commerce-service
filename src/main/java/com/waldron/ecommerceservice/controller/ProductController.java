@@ -27,7 +27,6 @@ public class ProductController {
         return productService.createProduct(product);
     }
 
-    //todo change to  Mono<ResponseEntity<Product>> https://github.com/G-khan/spring-webflux-reactive-rest-api-demo/blob/main/src/main/java/dev/gokhana/reactiveapi/controller/UserController.java
     @PutMapping("/{id}")
     public Mono<Product> updateProductForId(@PathVariable Long id, @Valid @RequestBody Product product){
         return productService.updateProductForId(id, product);
@@ -36,8 +35,5 @@ public class ProductController {
     @DeleteMapping("/{id}")
     public Mono<Void> deleteProductForId(@PathVariable Long id){
         return productService.deleteProductForId(id);
-            //todo add reply for id not found with ResponseEntity
-                //.defaultIfEmpty(Mono.new ResponseEntity<>(HttpStatus.NOT_FOUND));
-                //.switchIfEmpty(Mono.error(new RuntimeException ("Product not found for id "+id)));
     }
 }
