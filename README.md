@@ -48,13 +48,13 @@ Body
     json
     {
         "name": "Book",
-        "price": 19.9912345
+        "price": 19.99
     }
 
 ### Response
 
     Status: 201 Created
-    {"id":5,"name":"REST Book 1","price":19.9912345}
+    {"id":6,"name":"Book","price":19.99}
 
 ## Update Product For Id
 
@@ -112,7 +112,7 @@ Get a list of all existing products
 
 `DELETE /products/:id`
 
-Delete a product with the given ID
+Delete a product with the given ID. Currently, delete only works for products that are not associated with a basket or order
 
 ### Response
 
