@@ -107,6 +107,7 @@ class BasketControllerTest {
         Long basketId = 1l;
         Long productId = 1l;
         int quantity = 1;
+        BasketDto basketDto = new BasketDto(productId, quantity);
         Basket expectedBasket = Basket.builder()
                 .id(productId)
                 .build();
@@ -114,8 +115,10 @@ class BasketControllerTest {
         when(basketService.addNumberOfProductsToBasket(productId, productId, quantity))
                 .thenReturn(Mono.just(expectedBasket));
 
-        webClient.patch().uri(BASKETS_URI+"/"+basketId+"/products/"+productId+"/quantity/"+quantity+"/add")
+        webClient.patch().uri(BASKETS_URI+"/"+basketId+"/add")
+                .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
+                .body(Mono.just(basketDto), BasketDto.class)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(Basket.class)
@@ -127,6 +130,7 @@ class BasketControllerTest {
         Long basketId = 1l;
         Long productId = 1l;
         int quantity = 1;
+        BasketDto basketDto = new BasketDto(productId, quantity);
         Basket expectedBasket = Basket.builder()
                 .id(productId)
                 .build();
@@ -134,8 +138,10 @@ class BasketControllerTest {
         when(basketService.reduceNumberOfProductsInBasket(productId, productId, quantity))
                 .thenReturn(Mono.just(expectedBasket));
 
-        webClient.patch().uri(BASKETS_URI+"/"+basketId+"/products/"+productId+"/quantity/"+quantity+"/reduce")
+        webClient.patch().uri(BASKETS_URI+"/"+basketId+"/reduce")
+                .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
+                .body(Mono.just(basketDto), BasketDto.class)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(Basket.class)

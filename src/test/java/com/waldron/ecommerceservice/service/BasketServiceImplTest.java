@@ -119,8 +119,8 @@ class BasketServiceImplTest {
         when(basketItemService.createBasketItem(any())).thenReturn(Mono.just(BasketItem.builder().build()));
 
         Mono<Basket> returnedBasket = basketService.addNumberOfProductsToBasket(basket.getId(),
-                                                                       productToAdd.getId(),
-                                                                       numberOfProducts);
+                                                                                productToAdd.getId(),
+                                                                                numberOfProducts);
 
         StepVerifier.create(returnedBasket)
                 .assertNext(basketToVerify -> assertEquals(
@@ -141,8 +141,8 @@ class BasketServiceImplTest {
         when(basketItemService.addNumberOfProducts(any(), anyInt())).thenReturn(updatedBasketItem);
 
         Mono<Basket> returnedBasket = basketService.addNumberOfProductsToBasket(basket.getId(),
-                productToAdd.getId(),
-                numberOfProducts);
+                                                                                productToAdd.getId(),
+                                                                                numberOfProducts);
 
         StepVerifier.create(returnedBasket)
                 .assertNext(basket1 -> assertEquals(updatedBasketItem.getProductCount(),

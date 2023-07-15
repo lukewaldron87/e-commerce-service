@@ -35,19 +35,16 @@ public class BasketController {
         return basketService.createBasketForProduct(basket);
     }
 
-    @PatchMapping("/{basketId}/products/{productId}/quantity/{quantity}/add")
+    @PatchMapping("/{basketId}/add")
     public Mono<Basket> addNumberOfProductsToBasket(@PathVariable Long basketId,
-                                                    @PathVariable Long productId,
-                                                    @PathVariable int quantity){
-
-        return basketService.addNumberOfProductsToBasket(basketId, productId, quantity);
+                                                    @Valid @RequestBody BasketDto basket){
+        return basketService.addNumberOfProductsToBasket(basketId, basket.getProductId(), basket.getProductCount());
     }
 
-    @PatchMapping("/{basketId}/products/{productId}/quantity/{quantity}/reduce")
+    @PatchMapping("/{basketId}/reduce")
     public Mono<Basket> reduceNumberOfProductsInBasket(@PathVariable Long basketId,
-                                                       @PathVariable Long productId,
-                                                       @PathVariable int quantity){
+                                                       @Valid @RequestBody BasketDto basket){
 
-        return basketService.reduceNumberOfProductsInBasket(basketId, productId, quantity);
+        return basketService.reduceNumberOfProductsInBasket(basketId, basket.getProductId(), basket.getProductCount());
     }
 }
