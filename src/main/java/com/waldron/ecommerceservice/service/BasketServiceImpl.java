@@ -1,5 +1,6 @@
 package com.waldron.ecommerceservice.service;
 
+import com.waldron.ecommerceservice.dto.BasketDto;
 import com.waldron.ecommerceservice.entity.Basket;
 import com.waldron.ecommerceservice.entity.BasketItem;
 import com.waldron.ecommerceservice.exception.NotFoundException;
@@ -40,6 +41,30 @@ public class BasketServiceImpl implements BasketService{
         ).subscribe(goodIdToBasketItemMap::putAll);
 
         return basketMono.map(basket -> {basket.setGoodIdToBasketItemMap(goodIdToBasketItemMap); return basket;});
+    }
+
+    @Override
+    public Mono<Basket> createBasketForProduct(BasketDto basketDto) {
+
+        Basket basket = createBasket();
+        BasketItem basketItem = createBasketItem(basketDto, basket);
+        basket.addBasketItemForProductId(basketItem.getProductId(), basketItem);
+        return Mono.just(basket);
+    }
+
+    private BasketItem createBasketItem(BasketDto basketDto, Basket basket) {
+        BasketItem basketItem = BasketItem.builder()
+                .productId(basketDto.getProductId())
+                .productCount(basketDto.getProductCount())
+                .basketId(basket.getId()).build();
+        basketItemService.createBasketItem(basketItem);
+        return basketItem;
+    }
+
+    private Basket createBasket() {
+        Basket basket = Basket.builder().id(1l).build();
+        basketRepository.save(basket);
+        return basket;
     }
 
     @Override

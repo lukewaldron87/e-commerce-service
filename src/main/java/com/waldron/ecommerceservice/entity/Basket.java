@@ -9,6 +9,7 @@ import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Table;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Data
@@ -31,7 +32,14 @@ public class Basket {
     }
 
     public void addBasketItemForProductId(Long productId, BasketItem basketItem){
+        initMapIfEmpty();
         goodIdToBasketItemMap.put(productId, basketItem);
+    }
+
+    private void initMapIfEmpty() {
+        if(goodIdToBasketItemMap == null){
+            goodIdToBasketItemMap = new HashMap<>();
+        }
     }
 
     public BasketItem getBasketItemForProductId(Long productId){

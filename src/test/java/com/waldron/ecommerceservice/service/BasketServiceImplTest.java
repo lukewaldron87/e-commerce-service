@@ -1,5 +1,6 @@
 package com.waldron.ecommerceservice.service;
 
+import com.waldron.ecommerceservice.dto.BasketDto;
 import com.waldron.ecommerceservice.entity.Basket;
 import com.waldron.ecommerceservice.entity.BasketItem;
 import com.waldron.ecommerceservice.entity.Product;
@@ -60,13 +61,54 @@ class BasketServiceImplTest {
 
     }
 
-    /*@Test
-    public void createBasket_shouldCreateNewBasket_whenProvidedProduct(){
-        int numberOfProducts = 1;
-        Product product = Product.builder().id(1l).build();
+    @Test
+    public void createBasketForProduct_shouldCreateNewBasket() {
 
-        basketService.createBasket();
-    }*/
+        long productId = 1l;
+        BasketDto basketDto = new BasketDto(productId, 1);
+        Basket basket = Basket.builder().id(1l).build();
+        BasketItem basketItem = BasketItem.builder()
+                .basketId(basket.getId())
+                .productId(basketDto.getProductId())
+                .productCount(basketDto.getProductCount()).build();
+        basket.addBasketItemForProductId(productId, basketItem);
+
+        when(basketRepository.save(any(Basket.class))).thenReturn(Mono.just(basket));
+        when(basketItemService.createBasketItem(any(BasketItem.class))).thenReturn(Mono.just(basketItem));
+
+        StepVerifier.create(basketService.createBasketForProduct(basketDto))
+                .expectNext(basket)
+                .verifyComplete();
+
+        ArgumentCaptor<Basket> basketCaptor = ArgumentCaptor.forClass(Basket.class);
+        verify(basketRepository, times(1)).save(basketCaptor.capture());
+        assertEquals(basket, basketCaptor.getValue());
+    }
+
+    @Test
+    public void createBasketForProduct_shouldCreateNewBasketItem_whenProvidedProduct(){
+        Long productId = 1l;
+        int productCount = 1;
+        BasketDto basketDto = new BasketDto(productId, productCount);
+
+        Basket basket = Basket.builder().id(1l).build();
+        BasketItem basketItem = BasketItem.builder()
+                .basketId(basket.getId())
+                .productId(basketDto.getProductId())
+                .productCount(basketDto.getProductCount()).build();
+        basket.addBasketItemForProductId(productId, basketItem);
+
+        when(basketRepository.save(any(Basket.class))).thenReturn(Mono.just(basket));
+        when(basketItemService.createBasketItem(any(BasketItem.class))).thenReturn(Mono.just(basketItem));
+
+        StepVerifier.create(basketService.createBasketForProduct(basketDto))
+                .expectNext(basket)
+                .verifyComplete();
+
+        ArgumentCaptor<BasketItem> basketItemCaptor = ArgumentCaptor.forClass(BasketItem.class);
+        verify(basketItemService, times(1)).createBasketItem(basketItemCaptor.capture());
+        assertEquals(basketItem, basketItemCaptor.getValue());
+    }
 
     @Test
     public void addNumberOfProductsToBasket_shouldAddNewBasketItem_whenProductNotInBasket(){
