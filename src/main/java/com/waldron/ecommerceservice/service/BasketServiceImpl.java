@@ -42,8 +42,6 @@ public class BasketServiceImpl implements BasketService{
         return basketMono.map(basket -> {basket.setGoodIdToBasketItemMap(goodIdToBasketItemMap); return basket;});
     }
 
-    //todo (not asked for in email) createBasketForProduct
-
     @Override
     public Mono<Basket> addNumberOfProductsToBasket(Long basketId, Long productId, int numberOfProducts) {
 

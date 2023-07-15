@@ -9,6 +9,8 @@ public interface BasketService {
 
     Mono<Basket> getBasketForId(Long basketId);
 
+    //todo (not asked for in email) createBasketForProduct
+
     Mono<Basket> addNumberOfProductsToBasket(Long basketId, Long productId, int numberOfProducts);
 
     Mono<Basket> reduceNumberOfProductsInBasket(Long basketId, Long productId, int numberOfProducts);
