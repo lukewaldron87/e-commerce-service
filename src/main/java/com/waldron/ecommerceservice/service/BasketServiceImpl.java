@@ -86,16 +86,26 @@ public class BasketServiceImpl implements BasketService{
 
         //todo add catch for if basket doesn't exists
         Mono<Basket> basketMono = getBasketForId(basketId);
+        incrementProductCount(productId, numberOfProducts, basketMono);
+        createNewBasketItemForProduct(basketId, productId, numberOfProducts, basketMono);
 
-        // increment product count
+        // todo only need to update the basket if I'm adding a new BasketItem
+        return updateBasket(basketMono);
+    }
+
+    private void incrementProductCount(Long productId, int numberOfProducts, Mono<Basket> basketMono) {
         basketMono.filter(basket -> basket.isProductInBasket(productId))
                 .map(basket -> basket.getBasketItemForProductId(productId))
                 .doOnNext(basketItem -> {
                     BasketItem updatedBasketItem = basketItemService.addNumberOfProducts(basketItem, numberOfProducts);
                     basketItem.setProductCount(updatedBasketItem.getProductCount());
                 }).subscribe();
+    }
 
-        // create new
+    private void createNewBasketItemForProduct(Long basketId,
+                                               Long productId,
+                                               int numberOfProducts,
+                                               Mono<Basket> basketMono) {
         basketMono.filter(basket -> !basket.isProductInBasket(productId))
                 .map(basket -> {
                     BasketItem basketItem = BasketItem.builder()
@@ -109,9 +119,6 @@ public class BasketServiceImpl implements BasketService{
                     basket.addBasketItemForProductId(productId, basketItem);
                     return basket;
                 }).subscribe();
-
-        // todo only need to update the basket if I'm adding a new BasketItem
-        return updateBasket(basketMono);
     }
 
     private Mono<Basket> updateBasket(Mono<Basket> basketMono){
@@ -133,14 +140,26 @@ public class BasketServiceImpl implements BasketService{
 
         //todo add catch for if basket doesn't exists
         Mono<Basket> basketMono = getBasketForId(basketId);
+        removeBasketItemFromBasket(productId, numberOfProducts, basketMono);
+        reduceNumberOfProductInBasket(productId, numberOfProducts, basketMono);
+        return basketMono;
+    }
 
-        // remove basket item from basket
+    private void removeBasketItemFromBasket(Long productId, int numberOfProducts, Mono<Basket> basketMono) {
         basketMono.filter(basket -> shouldRemoveProduct(productId, numberOfProducts, basket))
                 .map(basket -> basket.removeBasketItem(productId))
                 .doOnNext(basketItem -> basketItemService.deleteBasketItemForId(basketItem.getId()).subscribe())
                 .subscribe();
+    }
 
-        //decrement if number less than existing
+    /**
+     * decrement the product count if number less than existing
+     *
+     * @param productId
+     * @param numberOfProducts
+     * @param basketMono
+     */
+    private void reduceNumberOfProductInBasket(Long productId, int numberOfProducts, Mono<Basket> basketMono) {
         basketMono.filter(basket -> ! shouldRemoveProduct(productId, numberOfProducts, basket))
                 .map(basket -> basket.getBasketItemForProductId(productId))
                 .doOnNext(basketItem -> {
@@ -148,8 +167,6 @@ public class BasketServiceImpl implements BasketService{
                     basketItem.setProductCount(updatedBasketItem.getProductCount());
                 })
                 .subscribe();
-
-        return basketMono;
     }
 
     private static boolean shouldRemoveProduct(Long productId, int numberOfProducts, Basket basket) {

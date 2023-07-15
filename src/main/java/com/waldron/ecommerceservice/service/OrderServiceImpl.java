@@ -38,6 +38,10 @@ public class OrderServiceImpl implements OrderService {
         Mono<Order> orderMono = orderRepository.findById(orderId)
                 .switchIfEmpty(Mono.error(new NotFoundException("Basket not found")));
 
+        return addOrderItemsToOrder(orderId, orderMono);
+    }
+
+    private Mono<Order> addOrderItemsToOrder(Long orderId, Mono<Order> orderMono) {
         Set<OrderItem> orderItems = new HashSet<>();
 
         orderItemService.getOrderItemsForOrderId(orderId)
@@ -58,7 +62,6 @@ public class OrderServiceImpl implements OrderService {
     }
 
     /**
-     *
      * Creates an Order and Order Items for a given basket then deleted the basket and basket items.
      *
      * @param orderDto
@@ -67,28 +70,30 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Mono<Order> createOrderFromBasket(OrderDto orderDto) {
 
-        Order newOrder = orderMapperService.mapDtoToNewEntity(orderDto);
+        Order newOrder = createNewOrder(orderDto);
 
-        // get basket
         Mono<Basket> basket = basketService.getBasketForId(orderDto.getBasketId());
 
-        // set status to PREPARING
-        newOrder.setStatus(Status.PREPARING);
+        mergeBasketWithOrder(newOrder, basket);
 
-        // save Order
-        Mono<Order> orderMono = orderRepository.save(newOrder);
-        orderMono.subscribe();
-
-        // merge basket with newOrder
-        basket.doOnNext(basketToMap -> orderMapperService.mapBasketToOrder(basketToMap, newOrder)).subscribe();
-
-        // save orderItems
-        newOrder.getOrderItems().stream()
-                .forEach(orderItem -> orderItemService.createOrderItem(orderItem).subscribe());
-
-        //delete basket and basket items
         basket.flatMap(basketToDelete -> basketService.deleteBasketForId(basketToDelete.getId())).subscribe();
 
         return Mono.just(newOrder);
+    }
+
+    private void mergeBasketWithOrder(Order newOrder, Mono<Basket> basket) {
+        // merge basket with newOrder
+        basket.doOnNext(basketToMap -> orderMapperService.mapBasketToOrder(basketToMap, newOrder)).subscribe();
+        // save orderItems
+        newOrder.getOrderItems().stream()
+                .forEach(orderItem -> orderItemService.createOrderItem(orderItem).subscribe());
+    }
+
+    private Order createNewOrder(OrderDto orderDto) {
+        Order newOrder = orderMapperService.mapDtoToNewEntity(orderDto);
+        newOrder.setStatus(Status.PREPARING);
+        Mono<Order> orderMono = orderRepository.save(newOrder);
+        orderMono.subscribe();
+        return newOrder;
     }
 }
