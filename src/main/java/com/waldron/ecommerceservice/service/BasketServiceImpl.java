@@ -52,19 +52,19 @@ public class BasketServiceImpl implements BasketService{
         return Mono.just(basket);
     }
 
+    private Basket createBasket() {
+        Basket basket = Basket.builder().build();
+        basketRepository.save(basket).subscribe();
+        return basket;
+    }
+
     private BasketItem createBasketItem(BasketDto basketDto, Basket basket) {
         BasketItem basketItem = BasketItem.builder()
                 .productId(basketDto.getProductId())
                 .productCount(basketDto.getProductCount())
                 .basketId(basket.getId()).build();
-        basketItemService.createBasketItem(basketItem);
+        basketItemService.createBasketItem(basketItem).subscribe();
         return basketItem;
-    }
-
-    private Basket createBasket() {
-        Basket basket = Basket.builder().id(1l).build();
-        basketRepository.save(basket);
-        return basket;
     }
 
     @Override

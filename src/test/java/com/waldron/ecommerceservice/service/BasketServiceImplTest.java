@@ -66,7 +66,7 @@ class BasketServiceImplTest {
 
         long productId = 1l;
         BasketDto basketDto = new BasketDto(productId, 1);
-        Basket basket = Basket.builder().id(1l).build();
+        Basket basket = Basket.builder().build();
         BasketItem basketItem = BasketItem.builder()
                 .basketId(basket.getId())
                 .productId(basketDto.getProductId())
@@ -91,7 +91,7 @@ class BasketServiceImplTest {
         int productCount = 1;
         BasketDto basketDto = new BasketDto(productId, productCount);
 
-        Basket basket = Basket.builder().id(1l).build();
+        Basket basket = Basket.builder().build();
         BasketItem basketItem = BasketItem.builder()
                 .basketId(basket.getId())
                 .productId(basketDto.getProductId())

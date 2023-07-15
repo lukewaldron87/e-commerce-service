@@ -1,8 +1,11 @@
 package com.waldron.ecommerceservice.controller;
 
+import com.waldron.ecommerceservice.dto.BasketDto;
 import com.waldron.ecommerceservice.entity.Basket;
 import com.waldron.ecommerceservice.service.BasketService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -24,6 +27,12 @@ public class BasketController {
     @GetMapping("/{id}/total")
     public Mono<BigDecimal> getTotalPriceForBasketId(@PathVariable Long id){
         return basketService.getTotalPriceForBasketId(id);
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public Mono<Basket> createBasketForProduct(@Valid @RequestBody BasketDto basket){
+        return basketService.createBasketForProduct(basket);
     }
 
     @PatchMapping("/{basketId}/products/{productId}/quantity/{quantity}/add")
