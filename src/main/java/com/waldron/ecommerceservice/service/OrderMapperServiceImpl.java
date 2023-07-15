@@ -25,7 +25,7 @@ public class OrderMapperServiceImpl implements OrderMapperService {
     }
 
     /**
-     * Maps a basket an order creating OrderItems for all BasketItems
+     * Maps a Basket to an Order. Creates OrderItems for all BasketItems
      *
      * The targetOrder must contain an id to set the orderId in each OrderItem.
      * This enables the relationship between Order and OrderItem

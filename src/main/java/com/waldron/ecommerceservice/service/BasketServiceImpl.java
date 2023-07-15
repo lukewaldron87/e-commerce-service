@@ -43,6 +43,12 @@ public class BasketServiceImpl implements BasketService{
         return basketMono.map(basket -> {basket.setGoodIdToBasketItemMap(goodIdToBasketItemMap); return basket;});
     }
 
+    /**
+     * Create a new basket for the given product
+     *
+     * @param basketDto
+     * @return
+     */
     @Override
     public Mono<Basket> createBasketForProduct(BasketDto basketDto) {
 
@@ -67,6 +73,14 @@ public class BasketServiceImpl implements BasketService{
         return basketItem;
     }
 
+    /**
+     * Add the given number of the specified product to the basket. If the product is not already in the basket it will be added.
+     *
+     * @param basketId
+     * @param productId
+     * @param numberOfProducts
+     * @return
+     */
     @Override
     public Mono<Basket> addNumberOfProductsToBasket(Long basketId, Long productId, int numberOfProducts) {
 
@@ -104,6 +118,16 @@ public class BasketServiceImpl implements BasketService{
         return basketMono.doOnNext(basket -> basketRepository.save(basket));
     }
 
+
+    /**
+     * Remove the given number of the specified product from the basket.
+     * If number of products is greater than or equal to the number in the basket that product will be removed.
+     *
+     * @param basketId
+     * @param productId
+     * @param numberOfProducts
+     * @return
+     */
     @Override
     public Mono<Basket> reduceNumberOfProductsInBasket(Long basketId, Long productId, int numberOfProducts) {
 

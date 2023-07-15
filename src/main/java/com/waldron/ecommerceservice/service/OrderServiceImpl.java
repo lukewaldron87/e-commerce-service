@@ -57,6 +57,13 @@ public class OrderServiceImpl implements OrderService {
                         .reduce(BigDecimal.ZERO, BigDecimal::add));
     }
 
+    /**
+     *
+     * Creates an Order and Order Items for a given basket then deleted the basket and basket items.
+     *
+     * @param orderDto
+     * @return
+     */
     @Override
     public Mono<Order> createOrderFromBasket(OrderDto orderDto) {
 
