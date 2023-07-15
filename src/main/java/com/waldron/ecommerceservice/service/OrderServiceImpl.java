@@ -79,7 +79,8 @@ public class OrderServiceImpl implements OrderService {
         newOrder.getOrderItems().stream()
                 .forEach(orderItem -> orderItemService.createOrderItem(orderItem).subscribe());
 
-        //todo delete basket and basket items (use services)
+        //delete basket and basket items
+        basket.flatMap(basketToDelete -> basketService.deleteBasketForId(basketToDelete.getId())).subscribe();
 
         return Mono.just(newOrder);
     }

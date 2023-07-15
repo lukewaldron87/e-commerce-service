@@ -291,6 +291,36 @@ class OrderServiceImplTest {
                 .verifyComplete();
 
         verify(orderItemService, times(2)).createOrderItem(any(OrderItem.class));
+    }
 
+    @Test
+    public void createOrderFromBasket_shouldDeleteBasket(){
+
+        Long basketId = 1l;
+        String name = "name";
+        String address = "address";
+        OrderDto orderDto = new OrderDto(basketId, name, address);
+
+        OrderItem orderItem1 = OrderItem.builder().id(1l).build();
+        OrderItem orderItem2 = OrderItem.builder().id(2l).build();
+        Set<OrderItem> orderItems = new HashSet<>(Arrays.asList(orderItem1, orderItem2));
+
+        Order newOrder = Order.builder().orderItems(orderItems).build();
+        Basket basket = Basket.builder()
+                .id(basketId)
+                .build();
+
+        when(orderMapperService.mapDtoToNewEntity(orderDto)).thenReturn(newOrder);
+        when(basketService.getBasketForId(basketId)).thenReturn(Mono.just(basket));
+        when(orderRepository.save(newOrder)).thenReturn(Mono.just(newOrder));
+        when(orderItemService.createOrderItem(any(OrderItem.class))).thenReturn(Mono.just(OrderItem.builder().build()));
+
+        StepVerifier.create(orderService.createOrderFromBasket(orderDto))
+                .expectNext(newOrder)
+                .verifyComplete();
+
+        ArgumentCaptor<Long> longCaptor = ArgumentCaptor.forClass(Long.class);
+        verify(basketService, times(1)).deleteBasketForId(longCaptor.capture());
+        assertEquals(basketId, longCaptor.getValue());
     }
 }

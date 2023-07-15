@@ -120,7 +120,7 @@ public class BasketServiceImpl implements BasketService{
 
     @Override
     public Mono<Void> deleteBasketForId(Long basketId) {
-        return basketRepository.deleteById(basketId)
-                .then(basketItemService.deleteBasketItemsForBasketId(basketId));
+        return basketItemService.deleteBasketItemsForBasketId(basketId)
+                .then(basketRepository.deleteById(basketId));
     }
 }
