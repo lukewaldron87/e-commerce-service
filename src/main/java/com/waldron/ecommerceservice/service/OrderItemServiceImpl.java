@@ -71,6 +71,7 @@ public class OrderItemServiceImpl implements OrderItemService{
 
     @Override
     public BigDecimal getTotalPrice(OrderItem orderItem) {
+        //todo refactor to functional/reactive solution
         BigDecimal price = orderItem.getProduct().getPrice();
         int productCount = orderItem.getProductCount();
         return price.multiply(BigDecimal.valueOf(productCount));

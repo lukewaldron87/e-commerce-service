@@ -28,7 +28,7 @@ public class BasketServiceImpl implements BasketService{
     @Override
     public Mono<Basket> getBasketForId(Long basketId) {
 
-        //todo refactor to functional solution
+        //todo refactor to functional solution (Mono.zip ?)
 
         Mono<Basket> basketMono = basketRepository.findById(basketId)
                 .switchIfEmpty(Mono.error(new NotFoundException("Basket not found")));
@@ -51,7 +51,7 @@ public class BasketServiceImpl implements BasketService{
      */
     @Override
     public Mono<Basket> createBasketForProduct(BasketDto basketDto) {
-
+        //todo refactor to functional/reactive solution
         Basket basket = createBasket();
         BasketItem basketItem = createBasketItem(basketDto, basket);
         basket.addBasketItemForProductId(basketItem.getProductId(), basketItem);
@@ -65,6 +65,7 @@ public class BasketServiceImpl implements BasketService{
     }
 
     private BasketItem createBasketItem(BasketDto basketDto, Basket basket) {
+        //todo refactor to functional/reactive solution
         BasketItem basketItem = BasketItem.builder()
                 .productId(basketDto.getProductId())
                 .productCount(basketDto.getProductCount())
@@ -83,6 +84,8 @@ public class BasketServiceImpl implements BasketService{
      */
     @Override
     public Mono<Basket> addNumberOfProductsToBasket(Long basketId, Long productId, int numberOfProducts) {
+
+        //todo refactor to functional/reactive solution
 
         //todo add catch for if basket doesn't exists
         Mono<Basket> basketMono = getBasketForId(basketId);
@@ -139,6 +142,7 @@ public class BasketServiceImpl implements BasketService{
     public Mono<Basket> reduceNumberOfProductsInBasket(Long basketId, Long productId, int numberOfProducts) {
 
         //todo add catch for if basket doesn't exists
+        //todo refactor to functional solution (Mono.zip ?)
         Mono<Basket> basketMono = getBasketForId(basketId);
         removeBasketItemFromBasket(productId, numberOfProducts, basketMono);
         reduceNumberOfProductInBasket(productId, numberOfProducts, basketMono);

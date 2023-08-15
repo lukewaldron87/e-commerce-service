@@ -33,7 +33,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Mono<Order> getOrderForId(Long orderId) {
-        //todo refactor to functional solution
+        //todo refactor to functional solution  (Mono.zip ?)
 
         Mono<Order> orderMono = orderRepository.findById(orderId)
                 .switchIfEmpty(Mono.error(new NotFoundException("Basket not found")));
@@ -69,6 +69,8 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     public Mono<Order> createOrderFromBasket(OrderDto orderDto) {
+
+        //todo refactor to functional/reactive solution
 
         Order newOrder = createNewOrder(orderDto);
 

@@ -65,6 +65,7 @@ public class BasketItemServiceImpl implements BasketItemService {
 
     @Override
     public Mono<BasketItem> createBasketItem(BasketItem basketItem) {
+        //todo refactor to functional/reactive solution
         verifyProductId(basketItem);
         verifyProductCount(basketItem);
 
@@ -90,7 +91,7 @@ public class BasketItemServiceImpl implements BasketItemService {
 
     @Override
     public BasketItem addNumberOfProducts(BasketItem basketItem, int numberOfProducts) {
-        //todo refactor to functional solution
+        //todo refactor to functional solution  (Mono.zip ?)
         int currentProductCount = basketItem.getProductCount();
         basketItem.setProductCount(currentProductCount+numberOfProducts);
         updatedBasketItem(basketItem).subscribe();
@@ -99,7 +100,7 @@ public class BasketItemServiceImpl implements BasketItemService {
 
     @Override
     public BasketItem reduceNumberOfProducts(BasketItem basketItem, int numberOfProducts) {
-        //todo refactor to functional solution
+        //todo refactor to functional solution  (Mono.zip ?)
         int currentProductCount = basketItem.getProductCount();
         basketItem.setProductCount(currentProductCount-numberOfProducts);
         updatedBasketItem(basketItem).subscribe();
@@ -118,10 +119,11 @@ public class BasketItemServiceImpl implements BasketItemService {
 
     @Override
     public BigDecimal getTotalPrice(BasketItem basketItem) {
+        //todo refactor to functional/reactive solution
         BigDecimal price = basketItem.getProduct().getPrice();
         int productCount = basketItem.getProductCount();
         return price.multiply(BigDecimal.valueOf(productCount));
     }
 
-    // create
+    //todo create
 }
