@@ -1,10 +1,9 @@
-package com.waldron.ecommerceservice.controller;
+package com.waldron.ecommerceservice.web;
 
 import com.waldron.ecommerceservice.dto.BasketDto;
-import com.waldron.ecommerceservice.dto.OrderDto;
 import com.waldron.ecommerceservice.entity.Basket;
-import com.waldron.ecommerceservice.entity.Order;
 import com.waldron.ecommerceservice.service.BasketService;
+import com.waldron.ecommerceservice.web.controller.BasketController;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
@@ -28,40 +27,6 @@ class BasketControllerTest {
     private BasketService basketService;
 
     private static String BASKETS_URI = "/baskets";
-
-    @Test
-    public void getBasketForId_shouldGetBasketFromService(){
-
-        Long basketId = 1l;
-        Basket expectedBasket = Basket.builder()
-                .id(basketId)
-                .build();
-
-        when(basketService.getBasketForId(basketId)).thenReturn(Mono.just(expectedBasket));
-
-        webClient.get().uri(BASKETS_URI+"/"+basketId)
-                .accept(MediaType.APPLICATION_JSON)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(Basket.class)
-                .isEqualTo(expectedBasket);
-    }
-
-    @Test
-    public void getTotalPriceForBasketId_shouldGetBigDecimalFromService(){
-
-        Long basketId = 1l;
-        BigDecimal expectedPrice = BigDecimal.valueOf(19.99);
-
-        when(basketService.getTotalPriceForBasketId(basketId)).thenReturn(Mono.just(expectedPrice));
-
-        webClient.get().uri(BASKETS_URI+"/"+basketId+"/total")
-                .accept(MediaType.APPLICATION_JSON)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(BigDecimal.class)
-                .isEqualTo(expectedPrice);
-    }
 
     @Test
     public void createBasketForProduct_shouldPassDtoToService(){

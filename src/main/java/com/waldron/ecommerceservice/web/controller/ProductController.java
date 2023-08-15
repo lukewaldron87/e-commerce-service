@@ -1,4 +1,4 @@
-package com.waldron.ecommerceservice.controller;
+package com.waldron.ecommerceservice.web.controller;
 
 import com.waldron.ecommerceservice.entity.Product;
 import com.waldron.ecommerceservice.service.ProductService;

@@ -7,7 +7,6 @@ import com.waldron.ecommerceservice.entity.OrderItem;
 import com.waldron.ecommerceservice.entity.Status;
 import com.waldron.ecommerceservice.exception.NotFoundException;
 import com.waldron.ecommerceservice.repository.OrderRepository;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;

@@ -1,7 +1,7 @@
 package com.waldron.ecommerceservice.service;
 
-import com.waldron.ecommerceservice.dto.OrderDto;
 import com.waldron.ecommerceservice.entity.*;
+import com.waldron.ecommerceservice.dto.OrderDto;
 import com.waldron.ecommerceservice.repository.OrderRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;

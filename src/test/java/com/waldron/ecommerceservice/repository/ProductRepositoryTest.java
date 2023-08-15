@@ -1,7 +1,6 @@
 package com.waldron.ecommerceservice.repository;
 
 import com.waldron.ecommerceservice.entity.Product;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.r2dbc.DataR2dbcTest;

@@ -1,4 +1,4 @@
-package com.waldron.ecommerceservice.controller;
+package com.waldron.ecommerceservice.web.controller;
 
 import com.waldron.ecommerceservice.dto.OrderDto;
 import com.waldron.ecommerceservice.entity.Order;

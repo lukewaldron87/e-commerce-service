@@ -1,7 +1,8 @@
-package com.waldron.ecommerceservice.controller;
+package com.waldron.ecommerceservice.web;
 
 import com.waldron.ecommerceservice.entity.Product;
 import com.waldron.ecommerceservice.service.ProductService;
+import com.waldron.ecommerceservice.web.controller.ProductController;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;

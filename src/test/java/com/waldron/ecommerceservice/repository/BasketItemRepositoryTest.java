@@ -2,7 +2,6 @@ package com.waldron.ecommerceservice.repository;
 
 import com.waldron.ecommerceservice.entity.Basket;
 import com.waldron.ecommerceservice.entity.BasketItem;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,8 +9,6 @@ import org.springframework.boot.test.autoconfigure.data.r2dbc.DataR2dbcTest;
 import reactor.test.StepVerifier;
 
 import java.util.Arrays;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @DataR2dbcTest
 class BasketItemRepositoryTest {

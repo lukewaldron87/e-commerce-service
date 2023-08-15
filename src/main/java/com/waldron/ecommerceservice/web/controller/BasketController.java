@@ -1,4 +1,4 @@
-package com.waldron.ecommerceservice.controller;
+package com.waldron.ecommerceservice.web.controller;
 
 import com.waldron.ecommerceservice.dto.BasketDto;
 import com.waldron.ecommerceservice.entity.Basket;
@@ -17,17 +17,6 @@ public class BasketController {
 
     @Autowired
     private BasketService basketService;
-
-    @GetMapping("/{id}")
-    public Mono<Basket> getBasketForId(@PathVariable Long id){
-        return basketService.getBasketForId(id);
-    }
-
-    // todo improve the output eg {total price: 19.99}
-    @GetMapping("/{id}/total")
-    public Mono<BigDecimal> getTotalPriceForBasketId(@PathVariable Long id){
-        return basketService.getTotalPriceForBasketId(id);
-    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

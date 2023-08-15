@@ -1,13 +1,11 @@
-package com.waldron.ecommerceservice.controller;
+package com.waldron.ecommerceservice.web;
 
 import com.waldron.ecommerceservice.dto.OrderDto;
 import com.waldron.ecommerceservice.entity.Order;
-import com.waldron.ecommerceservice.entity.OrderItem;
-import com.waldron.ecommerceservice.entity.Product;
 import com.waldron.ecommerceservice.entity.Status;
 import com.waldron.ecommerceservice.service.OrderService;
+import com.waldron.ecommerceservice.web.controller.OrderController;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
