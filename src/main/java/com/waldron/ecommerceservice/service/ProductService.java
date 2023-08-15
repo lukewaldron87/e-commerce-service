@@ -10,7 +10,7 @@ public interface ProductService {
 
     Mono<Product> getProductForId(Long id);
 
-    Mono<Product> createProduct(Product product);
+    Mono<Product> createProduct(Mono<Product> productMono);
 
     Mono<Product> updateProductForId(Long productId, Product product);
 

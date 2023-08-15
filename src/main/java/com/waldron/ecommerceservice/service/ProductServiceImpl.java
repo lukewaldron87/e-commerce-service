@@ -28,8 +28,8 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public Mono<Product> createProduct(Product product) {
-        return productRepository.save(product);
+    public Mono<Product> createProduct(Mono<Product> productMono) {
+        return productMono.flatMap(product -> productRepository.save(product));
     }
 
     /**
@@ -43,6 +43,7 @@ public class ProductServiceImpl implements ProductService{
     public Mono<Product> updateProductForId(Long productId, Product product) {
 
         return productRepository.findById(productId)
+                // todo test if this return correct 404 or should I change to defaultIfEmpty mono.empty
                 .switchIfEmpty(Mono.error(new NotFoundException(PRODUCT_NOT_FOUND_MESSAGE)))
                 // todo add mapping method for update
                 .map(foundProduct -> {
@@ -61,8 +62,9 @@ public class ProductServiceImpl implements ProductService{
      */
     @Override
     public Mono<Void> deleteProductForId(Long productId) {
-        return productRepository.deleteById(productId);
-        //todo create response for not found
-                //.switchIfEmpty(Mono.error(new NotFoundException(PRODUCT_NOT_FOUND_EXCEPTION)))
+        return productRepository.findById(productId)
+                .switchIfEmpty(Mono.error(new NotFoundException(PRODUCT_NOT_FOUND_MESSAGE)))
+                .map(Product::getId)
+                .flatMap(foundId -> productRepository.deleteById(foundId));
     }
 }
