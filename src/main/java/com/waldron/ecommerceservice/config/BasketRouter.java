@@ -22,7 +22,7 @@ public class BasketRouter {
         return route()
                 .GET(BASKETS_URI_ID, accept(APPLICATION_JSON), handler::getBasketForId)
                 .GET(BASKETS_URI_TOTAL, accept(APPLICATION_JSON), handler::getTotalPriceForBasketId)
-                //.POST(BASKETS_URI, accept(APPLICATION_JSON), handler::createBasketForProduct)
+                .POST(BASKETS_URI, accept(APPLICATION_JSON), handler::createBasketForProduct)
                 //addNumberOfProductsToBasket
                 //reduceNumberOfProductsInBasket
                 .build();

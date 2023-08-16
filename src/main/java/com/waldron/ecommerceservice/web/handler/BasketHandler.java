@@ -1,8 +1,9 @@
 package com.waldron.ecommerceservice.web.handler;
 
-import com.waldron.ecommerceservice.dto.BasketDto;
+import com.waldron.ecommerceservice.dto.BasketItemDto;
 import com.waldron.ecommerceservice.service.BasketService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
@@ -13,8 +14,7 @@ import org.springframework.web.server.ServerWebInputException;
 import reactor.core.publisher.Mono;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.web.reactive.function.server.ServerResponse.notFound;
-import static org.springframework.web.reactive.function.server.ServerResponse.ok;
+import static org.springframework.web.reactive.function.server.ServerResponse.*;
 
 @Component
 @RequiredArgsConstructor
@@ -40,14 +40,15 @@ public class BasketHandler {
                 .switchIfEmpty(notFound().build());
     }
 
-//    public Mono<ServerResponse> createBasketForProduct(ServerRequest request) {
-//        Mono<BasketDto> basketDtoMono = request.bodyToMono(BasketDto.class).doOnNext(this::validate);
-//        return ok().build(basketService.createBasketForProduct(basketDtoMono));
-//    }
+    public Mono<ServerResponse> createBasketForProduct(ServerRequest request) {
+        Mono<BasketItemDto> basketItemDtoMono = request.bodyToMono(BasketItemDto.class).doOnNext(this::validate);
+        return basketService.createBasketForProduct(basketItemDtoMono)
+                .flatMap(basket -> status(HttpStatus.CREATED).contentType(APPLICATION_JSON).bodyValue(basket));
+    }
 
-    private void validate(BasketDto basketDto){
-        Errors errors = new BeanPropertyBindingResult(basketDto, "basketDto");
-        validator.validate(basketDto, errors);
+    private void validate(BasketItemDto basketItemDto){
+        Errors errors = new BeanPropertyBindingResult(basketItemDto, "basketItemDto");
+        validator.validate(basketItemDto, errors);
         if(errors.hasErrors()){
             throw new ServerWebInputException(errors.toString());
         }

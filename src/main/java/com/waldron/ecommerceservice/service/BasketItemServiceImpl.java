@@ -68,7 +68,7 @@ public class BasketItemServiceImpl implements BasketItemService {
         //todo refactor to functional/reactive solution
         verifyProductId(basketItem);
         verifyProductCount(basketItem);
-
+        //todo refactor to reactive solution
         return basketItemRepository.save(basketItem);
     }
 
@@ -86,6 +86,7 @@ public class BasketItemServiceImpl implements BasketItemService {
 
     @Override
     public Mono<BasketItem> updatedBasketItem(BasketItem updatedBasketItem) {
+        //todo refactor to reactive solution
         return basketItemRepository.save(updatedBasketItem);
     }
 
@@ -94,6 +95,7 @@ public class BasketItemServiceImpl implements BasketItemService {
         //todo refactor to functional solution  (Mono.zip ?)
         int currentProductCount = basketItem.getProductCount();
         basketItem.setProductCount(currentProductCount+numberOfProducts);
+        //todo refactor to reactive solution
         updatedBasketItem(basketItem).subscribe();
         return basketItem;
     }
@@ -103,6 +105,7 @@ public class BasketItemServiceImpl implements BasketItemService {
         //todo refactor to functional solution  (Mono.zip ?)
         int currentProductCount = basketItem.getProductCount();
         basketItem.setProductCount(currentProductCount-numberOfProducts);
+        //todo refactor to reactive solution
         updatedBasketItem(basketItem).subscribe();
         return basketItem;
     }

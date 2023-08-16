@@ -1,6 +1,6 @@
 package com.waldron.ecommerceservice.service;
 
-import com.waldron.ecommerceservice.dto.BasketDto;
+import com.waldron.ecommerceservice.dto.BasketItemDto;
 import com.waldron.ecommerceservice.entity.Basket;
 import com.waldron.ecommerceservice.entity.BasketItem;
 import com.waldron.ecommerceservice.exception.NotFoundException;
@@ -12,6 +12,7 @@ import reactor.core.publisher.Mono;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class BasketServiceImpl implements BasketService{
@@ -46,16 +47,49 @@ public class BasketServiceImpl implements BasketService{
     /**
      * Create a new basket for the given product
      *
-     * @param basketDto
+     * @param basketItemDtoMono
      * @return
      */
     @Override
-    public Mono<Basket> createBasketForProduct(BasketDto basketDto) {
-        //todo refactor to functional/reactive solution
-        Basket basket = createBasket();
-        BasketItem basketItem = createBasketItem(basketDto, basket);
-        basket.addBasketItemForProductId(basketItem.getProductId(), basketItem);
-        return Mono.just(basket);
+    public Mono<Basket> createBasketForProduct(Mono<BasketItemDto> basketItemDtoMono) {
+        //todo refactor to reactive solution
+
+        AtomicLong productId = new AtomicLong();
+
+        //create basket item
+        return basketItemDtoMono
+                .map(basketDto -> {
+                    // map dto to entity
+                    productId.set(basketDto.getProductId());
+                    return BasketItem.builder()
+                            .productId(basketDto.getProductId())
+                            .productCount(basketDto.getProductCount())
+                            .build();
+                }).flatMap(basketItemService::createBasketItem)
+                // add basket item to new basket
+                .map(basketItem -> {
+                    Basket basket = Basket.builder().build();
+                    basket.addBasketItemForProductId(basketItem.getProductId(), basketItem);
+                    return basket;
+                })
+                // create basket
+                .map(basketRepository::save)
+                .flatMap(basketMono -> basketMono)
+                // add basketId to BasketItem and update
+                .map(basket -> {
+                    BasketItem basketItem = basket.getBasketItemForProductId(productId.get());
+                    basketItem.setBasketId(basket.getId());
+                    //update basketItem
+                    basketItemService.updatedBasketItem(basketItem).subscribe();
+                    return basket;
+                });
+
+
+
+//        Basket basket = createBasket();
+//        Mono<BasketItem> basketItemMono = createBasketItem(basketDto, basket);
+//        basketItemMono.subscribe(basketItem -> basket.addBasketItemForProductId(basketItem.getProductId(), basketItem));
+//        return Mono.just(basket);
     }
 
     private Basket createBasket() {
@@ -64,14 +98,15 @@ public class BasketServiceImpl implements BasketService{
         return basket;
     }
 
-    private BasketItem createBasketItem(BasketDto basketDto, Basket basket) {
+    private Mono<BasketItem> createBasketItem(Mono<BasketItemDto> basketItemDtoMono, Basket basket) {
         //todo refactor to functional/reactive solution
-        BasketItem basketItem = BasketItem.builder()
-                .productId(basketDto.getProductId())
-                .productCount(basketDto.getProductCount())
-                .basketId(basket.getId()).build();
-        basketItemService.createBasketItem(basketItem).subscribe();
-        return basketItem;
+
+        return basketItemDtoMono.map(basketDto -> {
+            return BasketItem.builder()
+                    .productId(basketDto.getProductId())
+                    .productCount(basketDto.getProductCount())
+                    .basketId(basket.getId()).build();
+        }).flatMap(basketItem -> basketItemService.createBasketItem(basketItem));
     }
 
     /**

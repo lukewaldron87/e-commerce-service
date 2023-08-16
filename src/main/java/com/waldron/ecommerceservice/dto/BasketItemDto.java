@@ -8,7 +8,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @RequiredArgsConstructor
-public class BasketDto {
+public class BasketItemDto {
 
     @NotNull(message = "productId can not be empty")
     private final Long productId;

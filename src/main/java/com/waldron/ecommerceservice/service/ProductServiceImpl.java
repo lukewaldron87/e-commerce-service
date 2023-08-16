@@ -43,7 +43,6 @@ public class ProductServiceImpl implements ProductService{
     public Mono<Product> updateProductForId(Long productId, Product product) {
 
         return productRepository.findById(productId)
-                // todo test if this return correct 404 or should I change to defaultIfEmpty mono.empty
                 .switchIfEmpty(Mono.error(new NotFoundException(PRODUCT_NOT_FOUND_MESSAGE)))
                 // todo add mapping method for update
                 .map(foundProduct -> {

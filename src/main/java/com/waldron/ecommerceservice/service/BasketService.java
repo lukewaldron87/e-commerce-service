@@ -1,6 +1,6 @@
 package com.waldron.ecommerceservice.service;
 
-import com.waldron.ecommerceservice.dto.BasketDto;
+import com.waldron.ecommerceservice.dto.BasketItemDto;
 import com.waldron.ecommerceservice.entity.Basket;
 import reactor.core.publisher.Mono;
 
@@ -10,7 +10,7 @@ public interface BasketService {
 
     Mono<Basket> getBasketForId(Long basketId);
 
-    Mono<Basket> createBasketForProduct(BasketDto basketDto);
+    Mono<Basket> createBasketForProduct(Mono<BasketItemDto> basketItemDtoMono);
 
     Mono<Basket> addNumberOfProductsToBasket(Long basketId, Long productId, int numberOfProducts);
 

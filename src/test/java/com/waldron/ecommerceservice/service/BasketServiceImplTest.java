@@ -1,6 +1,6 @@
 package com.waldron.ecommerceservice.service;
 
-import com.waldron.ecommerceservice.dto.BasketDto;
+import com.waldron.ecommerceservice.dto.BasketItemDto;
 import com.waldron.ecommerceservice.entity.Basket;
 import com.waldron.ecommerceservice.entity.BasketItem;
 import com.waldron.ecommerceservice.entity.Product;
@@ -65,18 +65,19 @@ class BasketServiceImplTest {
     public void createBasketForProduct_shouldCreateNewBasket() {
 
         long productId = 1l;
-        BasketDto basketDto = new BasketDto(productId, 1);
+        BasketItemDto basketItemDto = new BasketItemDto(productId, 1);
         Basket basket = Basket.builder().build();
         BasketItem basketItem = BasketItem.builder()
                 .basketId(basket.getId())
-                .productId(basketDto.getProductId())
-                .productCount(basketDto.getProductCount()).build();
+                .productId(basketItemDto.getProductId())
+                .productCount(basketItemDto.getProductCount()).build();
         basket.addBasketItemForProductId(productId, basketItem);
 
         when(basketRepository.save(any(Basket.class))).thenReturn(Mono.just(basket));
         when(basketItemService.createBasketItem(any(BasketItem.class))).thenReturn(Mono.just(basketItem));
+        when(basketItemService.updatedBasketItem(any(BasketItem.class))).thenReturn(Mono.just(basketItem));
 
-        StepVerifier.create(basketService.createBasketForProduct(basketDto))
+        StepVerifier.create(basketService.createBasketForProduct(Mono.just(basketItemDto)))
                 .expectNext(basket)
                 .verifyComplete();
 
@@ -89,19 +90,20 @@ class BasketServiceImplTest {
     public void createBasketForProduct_shouldCreateNewBasketItem_whenProvidedProduct(){
         Long productId = 1l;
         int productCount = 1;
-        BasketDto basketDto = new BasketDto(productId, productCount);
+        BasketItemDto basketItemDto = new BasketItemDto(productId, productCount);
 
         Basket basket = Basket.builder().build();
         BasketItem basketItem = BasketItem.builder()
                 .basketId(basket.getId())
-                .productId(basketDto.getProductId())
-                .productCount(basketDto.getProductCount()).build();
+                .productId(basketItemDto.getProductId())
+                .productCount(basketItemDto.getProductCount()).build();
         basket.addBasketItemForProductId(productId, basketItem);
 
         when(basketRepository.save(any(Basket.class))).thenReturn(Mono.just(basket));
         when(basketItemService.createBasketItem(any(BasketItem.class))).thenReturn(Mono.just(basketItem));
+        when(basketItemService.updatedBasketItem(any(BasketItem.class))).thenReturn(Mono.just(basketItem));
 
-        StepVerifier.create(basketService.createBasketForProduct(basketDto))
+        StepVerifier.create(basketService.createBasketForProduct(Mono.just(basketItemDto)))
                 .expectNext(basket)
                 .verifyComplete();
 
