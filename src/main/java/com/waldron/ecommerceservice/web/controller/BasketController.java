@@ -15,12 +15,6 @@ public class BasketController {
     @Autowired
     private BasketService basketService;
 
-    @PatchMapping("/{basketId}/add")
-    public Mono<Basket> addNumberOfProductsToBasket(@PathVariable Long basketId,
-                                                    @Valid @RequestBody BasketItemDto basket){
-        return basketService.addNumberOfProductsToBasket(basketId, basket.getProductId(), basket.getProductCount());
-    }
-
     @PatchMapping("/{basketId}/reduce")
     public Mono<Basket> reduceNumberOfProductsInBasket(@PathVariable Long basketId,
                                                        @Valid @RequestBody BasketItemDto basket){

@@ -1,13 +1,18 @@
 package com.waldron.ecommerceservice.web.handler;
 
 import com.waldron.ecommerceservice.dto.BasketItemDto;
+import com.waldron.ecommerceservice.entity.Basket;
 import com.waldron.ecommerceservice.service.BasketService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.ServerWebInputException;
@@ -54,7 +59,21 @@ public class BasketHandler {
         }
     }
 
+//    @PatchMapping("/{basketId}/add")
+//    public Mono<Basket> addNumberOfProductsToBasket(@PathVariable Long basketId,
+//                                                    @Valid @RequestBody BasketItemDto basket){
+//        return basketService.addNumberOfProductsToBasket(basketId, basket.getProductId(), basket.getProductCount());
+//    }
+
+    public Mono<ServerResponse> addNumberOfProductsToBasket(ServerRequest request) {
+        Long basketId = Long.valueOf(request.pathVariable("id"));
+
+        //todo refactor to pass dto instead of variables
+        return request.bodyToMono(BasketItemDto.class).doOnNext(this::validate)
+                .flatMap(basketItemDto -> basketService.addNumberOfProductsToBasket(basketId, basketItemDto.getProductId(), basketItemDto.getProductCount()))
+                .flatMap(basket -> ok().contentType(APPLICATION_JSON).bodyValue(basket));
+    }
+
     //todo
-    //addNumberOfProductsToBasket
     //reduceNumberOfProductsInBasket
 }
