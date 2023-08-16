@@ -59,12 +59,6 @@ public class BasketHandler {
         }
     }
 
-//    @PatchMapping("/{basketId}/add")
-//    public Mono<Basket> addNumberOfProductsToBasket(@PathVariable Long basketId,
-//                                                    @Valid @RequestBody BasketItemDto basket){
-//        return basketService.addNumberOfProductsToBasket(basketId, basket.getProductId(), basket.getProductCount());
-//    }
-
     public Mono<ServerResponse> addNumberOfProductsToBasket(ServerRequest request) {
         Long basketId = Long.valueOf(request.pathVariable("id"));
 
@@ -74,6 +68,13 @@ public class BasketHandler {
                 .flatMap(basket -> ok().contentType(APPLICATION_JSON).bodyValue(basket));
     }
 
-    //todo
-    //reduceNumberOfProductsInBasket
+    public Mono<ServerResponse> reduceNumberOfProductsInBasket(ServerRequest request) {
+        Long basketId = Long.valueOf(request.pathVariable("id"));
+
+        //todo refactor to pass dto instead of variables
+        return request.bodyToMono(BasketItemDto.class).doOnNext(this::validate)
+                .flatMap(basketItemDto -> basketService.reduceNumberOfProductsInBasket(basketId, basketItemDto.getProductId(), basketItemDto.getProductCount()))
+                .flatMap(basket -> ok().contentType(APPLICATION_JSON).bodyValue(basket));
+    }
+
 }

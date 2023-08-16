@@ -209,6 +209,7 @@ public class BasketServiceImpl implements BasketService{
     }
 
     private static boolean shouldRemoveProduct(Long productId, int numberOfProducts, Basket basket) {
+        // todo getting null pointer here in logs.
         return numberOfProducts >= basket.getBasketItemForProductId(productId).getProductCount();
     }
 

@@ -17,6 +17,7 @@ public class BasketRouter {
     private static final String BASKETS_URI_ID = BASKETS_URI + "/{id}";
     private static final String BASKETS_URI_TOTAL = BASKETS_URI_ID + "/total";
     private static final String BASKETS_URI_ADD = BASKETS_URI_ID + "/add";
+    private static final String BASKETS_URI_REDUCE = BASKETS_URI_ID + "/reduce";
 
     @Bean
     public RouterFunction<ServerResponse> basketRoutes(BasketHandler handler){
@@ -25,7 +26,7 @@ public class BasketRouter {
                 .GET(BASKETS_URI_TOTAL, accept(APPLICATION_JSON), handler::getTotalPriceForBasketId)
                 .POST(BASKETS_URI, accept(APPLICATION_JSON), handler::createBasketForProduct)
                 .PATCH(BASKETS_URI_ADD, accept(APPLICATION_JSON), handler::addNumberOfProductsToBasket)
-                //reduceNumberOfProductsInBasket
+                .PATCH(BASKETS_URI_REDUCE, accept(APPLICATION_JSON), handler::reduceNumberOfProductsInBasket)
                 .build();
     }
 
