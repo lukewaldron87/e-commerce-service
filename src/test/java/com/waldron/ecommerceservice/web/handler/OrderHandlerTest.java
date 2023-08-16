@@ -1,13 +1,13 @@
-package com.waldron.ecommerceservice.web;
+package com.waldron.ecommerceservice.web.handler;
 
+import com.waldron.ecommerceservice.config.OrderRouter;
 import com.waldron.ecommerceservice.dto.OrderDto;
 import com.waldron.ecommerceservice.entity.Order;
 import com.waldron.ecommerceservice.entity.Status;
 import com.waldron.ecommerceservice.service.OrderService;
-import com.waldron.ecommerceservice.web.controller.OrderController;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -15,20 +15,17 @@ import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@WebFluxTest(OrderController.class)
-class OrderControllerTest {
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+class OrderHandlerTest {
 
     @Autowired
     private WebTestClient webClient;
 
     @MockBean
     private OrderService orderService;
-
-    private static String ORDERS_URI = "/orders";
 
     @Test
     public void getOrderForId_shouldGetOrderFromService(){
@@ -42,7 +39,7 @@ class OrderControllerTest {
 
         when(orderService.getOrderForId(orderId)).thenReturn(Mono.just(expectedOrder));
 
-        webClient.get().uri(ORDERS_URI +"/"+orderId)
+        webClient.get().uri(OrderRouter.ORDERS_URI +"/"+orderId)
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isOk()
@@ -58,7 +55,7 @@ class OrderControllerTest {
 
         when(orderService.getTotalPriceForOrderId(orderId)).thenReturn(Mono.just(expectedPrice));
 
-        webClient.get().uri(ORDERS_URI+"/"+orderId+"/total")
+        webClient.get().uri(OrderRouter.ORDERS_URI+"/"+orderId+"/total")
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isOk()
@@ -71,8 +68,10 @@ class OrderControllerTest {
 
         OrderDto orderDto = new OrderDto(1l, "name", "address");
 
+        when(orderService.createOrderFromBasket(any(OrderDto.class))).thenReturn(Mono.just(Order.builder().build()));
+
         webClient.post()
-                .uri(ORDERS_URI)
+                .uri(OrderRouter.ORDERS_URI)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .body(Mono.just(orderDto), OrderDto.class)
@@ -92,7 +91,7 @@ class OrderControllerTest {
         when(orderService.createOrderFromBasket(any())).thenReturn(Mono.just(expectedOrder));
 
         webClient.post()
-                .uri(ORDERS_URI)
+                .uri(OrderRouter.ORDERS_URI)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .body(Mono.just(orderDto), OrderDto.class)

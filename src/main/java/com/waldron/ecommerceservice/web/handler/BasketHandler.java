@@ -1,23 +1,18 @@
 package com.waldron.ecommerceservice.web.handler;
 
 import com.waldron.ecommerceservice.dto.BasketItemDto;
-import com.waldron.ecommerceservice.entity.Basket;
 import com.waldron.ecommerceservice.service.BasketService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.ServerWebInputException;
 import reactor.core.publisher.Mono;
 
+import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.web.reactive.function.server.ServerResponse.*;
 
@@ -48,15 +43,7 @@ public class BasketHandler {
     public Mono<ServerResponse> createBasketForProduct(ServerRequest request) {
         Mono<BasketItemDto> basketItemDtoMono = request.bodyToMono(BasketItemDto.class).doOnNext(this::validate);
         return basketService.createBasketForProduct(basketItemDtoMono)
-                .flatMap(basket -> status(HttpStatus.CREATED).contentType(APPLICATION_JSON).bodyValue(basket));
-    }
-
-    private void validate(BasketItemDto basketItemDto){
-        Errors errors = new BeanPropertyBindingResult(basketItemDto, "basketItemDto");
-        validator.validate(basketItemDto, errors);
-        if(errors.hasErrors()){
-            throw new ServerWebInputException(errors.toString());
-        }
+                .flatMap(basket -> status(CREATED).contentType(APPLICATION_JSON).bodyValue(basket));
     }
 
     public Mono<ServerResponse> addNumberOfProductsToBasket(ServerRequest request) {
@@ -75,6 +62,14 @@ public class BasketHandler {
         return request.bodyToMono(BasketItemDto.class).doOnNext(this::validate)
                 .flatMap(basketItemDto -> basketService.reduceNumberOfProductsInBasket(basketId, basketItemDto.getProductId(), basketItemDto.getProductCount()))
                 .flatMap(basket -> ok().contentType(APPLICATION_JSON).bodyValue(basket));
+    }
+
+    private void validate(BasketItemDto basketItemDto){
+        Errors errors = new BeanPropertyBindingResult(basketItemDto, "basketItemDto");
+        validator.validate(basketItemDto, errors);
+        if(errors.hasErrors()){
+            throw new ServerWebInputException(errors.toString());
+        }
     }
 
 }
