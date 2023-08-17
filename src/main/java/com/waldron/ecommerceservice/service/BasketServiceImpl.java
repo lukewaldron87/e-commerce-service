@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BiFunction;
 
 @Service
 public class BasketServiceImpl implements BasketService{
@@ -29,19 +30,19 @@ public class BasketServiceImpl implements BasketService{
     @Override
     public Mono<Basket> getBasketForId(Long basketId) {
 
-        //todo refactor to functional solution (Mono.zip ?)
+        //todo how to stream list of BasketItems and add them one at at time to Basket?
 
-        Mono<Basket> basketMono = basketRepository.findById(basketId)
-                .switchIfEmpty(Mono.error(new NotFoundException("Basket not found")));
-
-        Map<Long, BasketItem> goodIdToBasketItemMap = new HashMap<>();
-
-        basketItemService.getBasketItemsForBasketId(basketId).collectMap(
-                basketItem -> basketItem.getProductId(),
-                basketItem -> basketItem
-        ).subscribe(goodIdToBasketItemMap::putAll);
-
-        return basketMono.map(basket -> {basket.setGoodIdToBasketItemMap(goodIdToBasketItemMap); return basket;});
+        return basketRepository.findById(basketId)
+                .switchIfEmpty(Mono.error(new NotFoundException("Basket not found")))
+                .zipWith(basketItemService.getBasketItemsForBasketId(basketId)
+                                .collectMap(
+                                        basketItem -> basketItem.getProductId(),
+                                        basketItem -> basketItem
+                                ),
+                        (basket, basketItemMap) ->  {
+                            basket.setGoodIdToBasketItemMap(basketItemMap);
+                            return basket;
+                        });
     }
 
     /**
@@ -55,6 +56,9 @@ public class BasketServiceImpl implements BasketService{
         //todo refactor to reactive solution
 
         AtomicLong productId = new AtomicLong();
+
+        //todo change to save basketItems (many) before saving basket (one)
+        //https://stackoverflow.com/questions/59986014/how-to-implement-onetomany-manytoone-and-manytomany-with-r2dbc-in-a-project-whi
 
         //create basket item
         return basketItemDtoMono
@@ -140,6 +144,7 @@ public class BasketServiceImpl implements BasketService{
                 }).subscribe();
     }
 
+    // must return a Mono to maintain backpressure
     private void createNewBasketItemForProduct(Long basketId,
                                                Long productId,
                                                int numberOfProducts,
@@ -178,17 +183,22 @@ public class BasketServiceImpl implements BasketService{
 
         //todo add catch for if basket doesn't exists
         //todo refactor to functional solution (Mono.zip ?)
-        Mono<Basket> basketMono = getBasketForId(basketId);
-        removeBasketItemFromBasket(productId, numberOfProducts, basketMono);
-        reduceNumberOfProductInBasket(productId, numberOfProducts, basketMono);
-        return basketMono;
+        //todo ensure all methods are returning and adding to the backpressure
+        return getBasketForId(basketId)
+                .flatMap(basket ->
+                    shouldRemoveProduct(productId, numberOfProducts, basket)
+                ? removeBasketItemFromBasket(productId, numberOfProducts, basket)
+                : reduceNumberOfProductInBasket(productId, numberOfProducts, basket)
+                )
+                //todo remove this and return Mono<Void>. Then return link to the getId operation
+                .then(getBasketForId(basketId));
+        // should i return mono empty and then use getById in controller
+
+        //todo do i need to update in the database?
     }
 
-    private void removeBasketItemFromBasket(Long productId, int numberOfProducts, Mono<Basket> basketMono) {
-        basketMono.filter(basket -> shouldRemoveProduct(productId, numberOfProducts, basket))
-                .map(basket -> basket.removeBasketItem(productId))
-                .doOnNext(basketItem -> basketItemService.deleteBasketItemForId(basketItem.getId()).subscribe())
-                .subscribe();
+    private Mono<Void> removeBasketItemFromBasket(Long productId, int numberOfProducts, Basket basket) {
+        return basketItemService.deleteBasketItemForId(basket.removeBasketItem(productId).getId());
     }
 
     /**
@@ -196,16 +206,13 @@ public class BasketServiceImpl implements BasketService{
      *
      * @param productId
      * @param numberOfProducts
-     * @param basketMono
+     * @param basket
      */
-    private void reduceNumberOfProductInBasket(Long productId, int numberOfProducts, Mono<Basket> basketMono) {
-        basketMono.filter(basket -> ! shouldRemoveProduct(productId, numberOfProducts, basket))
-                .map(basket -> basket.getBasketItemForProductId(productId))
-                .doOnNext(basketItem -> {
-                    BasketItem updatedBasketItem = basketItemService.reduceNumberOfProducts(basketItem, numberOfProducts);
-                    basketItem.setProductCount(updatedBasketItem.getProductCount());
-                })
-                .subscribe();
+    private Mono<Void> reduceNumberOfProductInBasket(Long productId, int numberOfProducts, Basket basket) {
+        BasketItem basketItem = basket.getBasketItemForProductId(productId);
+        BasketItem updatedBasketItem = basketItemService.reduceNumberOfProducts(basketItem, numberOfProducts);
+        basketItem.setProductCount(updatedBasketItem.getProductCount());
+        return Mono.empty();
     }
 
     private static boolean shouldRemoveProduct(Long productId, int numberOfProducts, Basket basket) {

@@ -24,12 +24,7 @@ public class BasketItemServiceImpl implements BasketItemService {
     public Mono<BasketItem> getBasketItemForId(Long basketItemId) {
         return basketItemRepository.findById(basketItemId)
                 .switchIfEmpty(Mono.error(new NotFoundException("Basket Item not found")))
-                .flatMap(basketItem -> {
-                    if (basketItem.getProductId() == null) {
-                        return Mono.just(basketItem);
-                    }
-                    return addProductToBasketItem(basketItem);
-                });
+                .flatMap(this::addProductToBasketItem);
     }
 
     /**
@@ -43,12 +38,8 @@ public class BasketItemServiceImpl implements BasketItemService {
     @Override
     public Flux<BasketItem> getBasketItemsForBasketId(Long basketId) {
         return basketItemRepository.findByBasketId(basketId)
-                .flatMap(basketItem -> {
-                    if (basketItem.getProductId() == null) {
-                        return Mono.just(basketItem);
-                    }
-                    return addProductToBasketItem(basketItem);
-                });
+                .switchIfEmpty(Mono.error(new NotFoundException("Basket Item not found")))
+                .flatMap(this::addProductToBasketItem);
     }
 
     //todo change to getProduct in service
@@ -102,6 +93,8 @@ public class BasketItemServiceImpl implements BasketItemService {
 
     @Override
     public BasketItem reduceNumberOfProducts(BasketItem basketItem, int numberOfProducts) {
+        //todo should return Mono<BasketItem>
+
         //todo refactor to functional solution  (Mono.zip ?)
         int currentProductCount = basketItem.getProductCount();
         basketItem.setProductCount(currentProductCount-numberOfProducts);

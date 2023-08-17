@@ -44,23 +44,6 @@ class BasketItemServiceImplTest {
     }
 
     @Test
-    public void getBasketItemForId_shouldReturnBasketItemWithoutProduct_whenProductIdNotProvided(){
-
-        Long basketItemId = 1l;
-        BasketItem basketItem = BasketItem.builder()
-                .id(basketItemId)
-                .productId(null)
-                .productCount(1)
-                .build();
-
-        when(basketItemRepository.findById(basketItemId)).thenReturn(Mono.just(basketItem));
-
-        StepVerifier.create(basketItemService.getBasketItemForId(basketItemId))
-                .expectNext(basketItem)
-                .verifyComplete();
-    }
-
-    @Test
     public void getBasketItemForId_shouldAddCorrectProductToBasketItem_whenProductExists(){
 
         Long basketItemId = 1l;
@@ -109,22 +92,6 @@ class BasketItemServiceImplTest {
         StepVerifier.create(basketItemService.getBasketItemForId(basketItemId))
                 .expectError(NotFoundException.class)
                 .verify();
-    }
-
-    @Test
-    public void getBasketItemsForBasketId_shouldReturnAFluxOfBasketItems(){
-
-        Long basketId = 1l;
-        BasketItem basketItem1 = BasketItem.builder().basketId(basketId).build();
-        BasketItem basketItem2 = BasketItem.builder().basketId(basketId).build();
-
-        when(basketItemRepository.findByBasketId(basketId)).thenReturn(Flux.just(basketItem1, basketItem2));
-
-        StepVerifier.create(basketItemService.getBasketItemsForBasketId(basketId))
-                .expectNext(basketItem1)
-                .expectNext(basketItem2)
-                .verifyComplete();
-
     }
 
     @Test

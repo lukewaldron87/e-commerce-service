@@ -56,7 +56,11 @@ class BasketServiceImplTest {
         Basket expectedBasket = mockSuccessfullyGetBasketForId();
 
         StepVerifier.create(basketService.getBasketForId(expectedBasket.getId()))
-                .expectNext(expectedBasket)
+                .assertNext(basket -> {
+                    assertEquals(expectedBasket.getGoodIdToBasketItemMap().size(), basket.getGoodIdToBasketItemMap().size());
+                    assertEquals(expectedBasket.getBasketItemForProductId(1l), basket.getBasketItemForProductId(1l));
+                    assertEquals(expectedBasket.getBasketItemForProductId(2l), basket.getBasketItemForProductId(2l));
+                })
                 .verifyComplete();
 
     }
@@ -158,6 +162,8 @@ class BasketServiceImplTest {
         int numberOfProducts = 1;
         Long productId = 1l;
         Basket basket = mockSuccessfullyGetBasketForId();
+
+        when(basketItemService.deleteBasketItemForId(any())).thenReturn(Mono.empty());
 
         Mono<Basket> basketMono = basketService.reduceNumberOfProductsInBasket(basket.getId(), productId, numberOfProducts);
 

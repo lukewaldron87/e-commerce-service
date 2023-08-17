@@ -3,16 +3,16 @@ package com.waldron.ecommerceservice.service;
 import com.waldron.ecommerceservice.entity.Product;
 import com.waldron.ecommerceservice.exception.NotFoundException;
 import com.waldron.ecommerceservice.repository.ProductRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
+@RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService{
 
-    @Autowired
-    private ProductRepository productRepository;
+    private final ProductRepository productRepository;
 
     @Override
     public Flux<Product> getProducts() {
