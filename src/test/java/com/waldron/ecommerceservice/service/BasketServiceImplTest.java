@@ -117,12 +117,13 @@ class BasketServiceImplTest {
     }
 
     @Test
-    public void addNumberOfProductsToBasket_shouldAddNewBasketItem_whenProductNotInBasket(){
+    public void addNumberOfProductsToBasket_shouldCreateNewBasketItem_whenProductNotInBasket(){
         int numberOfProducts = 1;
         Product productToAdd = Product.builder().id(3l).build();
         Basket basket = mockSuccessfullyGetBasketForId();
 
-        when(basketItemService.createBasketItem(any())).thenReturn(Mono.just(BasketItem.builder().build()));
+        BasketItem newBasketItem = BasketItem.builder().productId(productToAdd.getId()).build();
+        when(basketItemService.createBasketItem(any())).thenReturn(Mono.just(newBasketItem));
 
         Mono<Basket> returnedBasket = basketService.addNumberOfProductsToBasket(basket.getId(),
                                                                                 productToAdd.getId(),
@@ -144,7 +145,7 @@ class BasketServiceImplTest {
         Product productToAdd = basket.getBasketItemForProductId(productId).getProduct();
 
         BasketItem updatedBasketItem = BasketItem.builder().productCount(2).build();
-        when(basketItemService.addNumberOfProducts(any(), anyInt())).thenReturn(updatedBasketItem);
+        when(basketItemService.addNumberOfProducts(any(), anyInt())).thenReturn(Mono.just(updatedBasketItem));
 
         Mono<Basket> returnedBasket = basketService.addNumberOfProductsToBasket(basket.getId(),
                                                                                 productToAdd.getId(),

@@ -16,7 +16,7 @@ public interface BasketItemService {
 
     Mono<BasketItem> updatedBasketItem(BasketItem updatedBasketItem);
 
-    BasketItem addNumberOfProducts(BasketItem basketItem, int numberOfProducts);
+    Mono<BasketItem> addNumberOfProducts(BasketItem basketItem, int numberOfProducts);
 
     Mono<BasketItem> reduceNumberOfProducts(BasketItem basketItem, int numberOfProducts);
 

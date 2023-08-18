@@ -234,8 +234,12 @@ class BasketItemServiceImplTest {
 
         when(basketItemRepository.save(basketItem)).thenReturn(Mono.just(basketItem));
 
-        BasketItem returnedBasketItem = basketItemService.addNumberOfProducts(basketItem, 1);
-        assertEquals(2, returnedBasketItem.getProductCount());
+        Mono<BasketItem> basketItemMono = basketItemService.addNumberOfProducts(basketItem, 1);
+
+        StepVerifier.create(basketItemMono)
+                .assertNext(returnedBasketItem -> assertEquals(2, returnedBasketItem.getProductCount()))
+                .verifyComplete();
+
     }
 
     @Test

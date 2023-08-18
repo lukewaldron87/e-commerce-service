@@ -10,10 +10,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.BiFunction;
 
 @Service
 public class BasketServiceImpl implements BasketService{
@@ -123,49 +120,40 @@ public class BasketServiceImpl implements BasketService{
      */
     @Override
     public Mono<Basket> addNumberOfProductsToBasket(Long basketId, Long productId, int numberOfProducts) {
-
-        //todo refactor to functional/reactive solution
-
-        //todo add catch for if basket doesn't exists
-        Mono<Basket> basketMono = getBasketForId(basketId);
-        incrementProductCount(productId, numberOfProducts, basketMono);
-        createNewBasketItemForProduct(basketId, productId, numberOfProducts, basketMono);
-
-        // todo only need to update the basket if I'm adding a new BasketItem
-        return updateBasket(basketMono);
+        // regression tested
+        return getBasketForId(basketId)
+                .flatMap(basket -> basket.isProductInBasket(productId)
+                        ? incrementProductCount(productId, numberOfProducts, basket)
+                        : createNewBasketItemForProduct(basketId, productId, numberOfProducts, basket)
+                );
     }
 
-    private void incrementProductCount(Long productId, int numberOfProducts, Mono<Basket> basketMono) {
-        basketMono.filter(basket -> basket.isProductInBasket(productId))
-                .map(basket -> basket.getBasketItemForProductId(productId))
-                .doOnNext(basketItem -> {
-                    BasketItem updatedBasketItem = basketItemService.addNumberOfProducts(basketItem, numberOfProducts);
-                    basketItem.setProductCount(updatedBasketItem.getProductCount());
-                }).subscribe();
+    private Mono<Basket> incrementProductCount(Long productId, int numberOfProducts, Basket basket) {
+        return Mono.just(basket.getBasketItemForProductId(productId))
+                .flatMap(basketItem -> basketItemService.addNumberOfProducts(basketItem, numberOfProducts))
+                .map(basketItem -> {
+                    basket.addBasketItemForProductId(productId, basketItem);
+                    return basket;
+                });//todo am I subscribing to the correct operation here? Am I breaking the chain?
     }
 
     // must return a Mono to maintain backpressure
-    private void createNewBasketItemForProduct(Long basketId,
-                                               Long productId,
-                                               int numberOfProducts,
-                                               Mono<Basket> basketMono) {
-        basketMono.filter(basket -> !basket.isProductInBasket(productId))
-                .map(basket -> {
-                    BasketItem basketItem = BasketItem.builder()
-                            .productId(productId)
-                            //todo how to add product from MONO
-                            //.product(product)
-                            .productCount(numberOfProducts)
-                            .basketId(basketId)
-                            .build();
-                    basketItemService.createBasketItem(basketItem).subscribe();
+    private Mono<Basket> createNewBasketItemForProduct(Long basketId,
+                                                       Long productId,
+                                                       int numberOfProducts,
+                                                       Basket basket) {
+        //todo should I use a zip for the basket and basketItem?
+        // I have used the pattern below in all add/removed product methods
+        return Mono.just(BasketItem.builder()
+                        .productId(productId)
+                        .productCount(numberOfProducts)
+                        .basketId(basketId)
+                        .build())
+                .flatMap(basketItemService::createBasketItem)
+                .map(basketItem -> {
                     basket.addBasketItemForProductId(productId, basketItem);
                     return basket;
-                }).subscribe();
-    }
-
-    private Mono<Basket> updateBasket(Mono<Basket> basketMono){
-        return basketMono.doOnNext(basket -> basketRepository.save(basket));
+                });
     }
 
 
