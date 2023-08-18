@@ -17,8 +17,7 @@ import reactor.test.StepVerifier;
 import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 class BasketItemServiceImplTest {
@@ -247,8 +246,27 @@ class BasketItemServiceImplTest {
 
         when(basketItemRepository.save(basketItem)).thenReturn(Mono.just(basketItem));
 
-        BasketItem returnedBasketItem = basketItemService.reduceNumberOfProducts(basketItem, 2);
-        assertEquals(1, returnedBasketItem.getProductCount());
+        Mono<BasketItem> BasketItemMono = basketItemService.reduceNumberOfProducts(basketItem, 2);
+        StepVerifier.create(BasketItemMono)
+                .assertNext(returnedBasketItem ->  assertEquals(1, returnedBasketItem.getProductCount()))
+                .verifyComplete();
+    }
+
+    @Test
+    public void reduceNumberOfProducts_shouldUpdateTheBasketItem_whenProductCountDecremented(){
+
+        BasketItem basketItem = BasketItem.builder()
+                .id(1l)
+                .productCount(3).build();
+
+        when(basketItemRepository.save(basketItem)).thenReturn(Mono.just(basketItem));
+
+        Mono<BasketItem> BasketItemMono = basketItemService.reduceNumberOfProducts(basketItem, 2);
+        StepVerifier.create(BasketItemMono)
+                .expectNext(basketItem)
+                .verifyComplete();
+
+        verify(basketItemRepository, times(1)).save(basketItem);
     }
 
     @Test

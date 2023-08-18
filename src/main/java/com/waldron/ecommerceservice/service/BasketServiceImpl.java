@@ -180,25 +180,19 @@ public class BasketServiceImpl implements BasketService{
      */
     @Override
     public Mono<Basket> reduceNumberOfProductsInBasket(Long basketId, Long productId, int numberOfProducts) {
-
-        //todo add catch for if basket doesn't exists
-        //todo refactor to functional solution (Mono.zip ?)
-        //todo ensure all methods are returning and adding to the backpressure
+        //regression tested
         return getBasketForId(basketId)
                 .flatMap(basket ->
-                    shouldRemoveProduct(productId, numberOfProducts, basket)
-                ? removeBasketItemFromBasket(productId, numberOfProducts, basket)
-                : reduceNumberOfProductInBasket(productId, numberOfProducts, basket)
-                )
-                //todo remove this and return Mono<Void>. Then return link to the getId operation
-                .then(getBasketForId(basketId));
-        // should i return mono empty and then use getById in controller
-
-        //todo do i need to update in the database?
+                        shouldRemoveProduct(productId, numberOfProducts, basket)
+                                ? removeBasketItemFromBasket(productId, basket)
+                                : reduceNumberOfProductInBasket(productId, numberOfProducts, basket)
+                );
     }
 
-    private Mono<Void> removeBasketItemFromBasket(Long productId, int numberOfProducts, Basket basket) {
-        return basketItemService.deleteBasketItemForId(basket.removeBasketItem(productId).getId());
+    private Mono<Basket> removeBasketItemFromBasket(Long productId, Basket basket) {
+        return Mono.just(basket.removeBasketItem(productId))
+                .flatMap(basketItem -> basketItemService.deleteBasketItemForId(basketItem.getId()))
+                .thenReturn(basket);//todo am I subscribing to the correct operation here? Am I breaking the chain?
     }
 
     /**
@@ -208,11 +202,14 @@ public class BasketServiceImpl implements BasketService{
      * @param numberOfProducts
      * @param basket
      */
-    private Mono<Void> reduceNumberOfProductInBasket(Long productId, int numberOfProducts, Basket basket) {
-        BasketItem basketItem = basket.getBasketItemForProductId(productId);
-        BasketItem updatedBasketItem = basketItemService.reduceNumberOfProducts(basketItem, numberOfProducts);
-        basketItem.setProductCount(updatedBasketItem.getProductCount());
-        return Mono.empty();
+    private Mono<Basket> reduceNumberOfProductInBasket(Long productId, int numberOfProducts, Basket basket) {
+        return Mono.just(basket.getBasketItemForProductId(productId))
+                .flatMap(basketItem -> basketItemService.reduceNumberOfProducts(basketItem, numberOfProducts))
+                .map(basketItem -> {
+                    basket.addBasketItemForProductId(productId, basketItem);
+                    return basket;
+                });//todo am I subscribing to the correct operation here? Am I breaking the chain?
+
     }
 
     private static boolean shouldRemoveProduct(Long productId, int numberOfProducts, Basket basket) {

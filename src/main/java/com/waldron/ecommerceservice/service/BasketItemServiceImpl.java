@@ -92,15 +92,13 @@ public class BasketItemServiceImpl implements BasketItemService {
     }
 
     @Override
-    public BasketItem reduceNumberOfProducts(BasketItem basketItem, int numberOfProducts) {
-        //todo should return Mono<BasketItem>
-
-        //todo refactor to functional solution  (Mono.zip ?)
-        int currentProductCount = basketItem.getProductCount();
-        basketItem.setProductCount(currentProductCount-numberOfProducts);
-        //todo refactor to reactive solution
-        updatedBasketItem(basketItem).subscribe();
-        return basketItem;
+    public Mono<BasketItem> reduceNumberOfProducts(BasketItem basketItem, final int numberOfProducts) {
+        return Mono.just(basketItem)
+                .map(basketItemToUpdate -> {
+                    basketItemToUpdate.setProductCount(basketItemToUpdate.getProductCount()-numberOfProducts);
+                    return basketItemToUpdate;
+                })
+                .flatMap(this::updatedBasketItem);
     }
 
     @Override
@@ -120,6 +118,4 @@ public class BasketItemServiceImpl implements BasketItemService {
         int productCount = basketItem.getProductCount();
         return price.multiply(BigDecimal.valueOf(productCount));
     }
-
-    //todo create
 }

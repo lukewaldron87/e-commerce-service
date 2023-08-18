@@ -31,6 +31,7 @@ public class Basket {
         this.id = id;
     }
 
+    //todo return immutable objects or deep copies
     public void addBasketItemForProductId(Long productId, BasketItem basketItem){
         initMapIfEmpty();
         goodIdToBasketItemMap.put(productId, basketItem);

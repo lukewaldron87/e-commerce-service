@@ -162,8 +162,9 @@ class BasketServiceImplTest {
         int numberOfProducts = 1;
         Long productId = 1l;
         Basket basket = mockSuccessfullyGetBasketForId();
+        Long basketId = basket.getBasketItemForProductId(productId).getBasketId();
 
-        when(basketItemService.deleteBasketItemForId(any())).thenReturn(Mono.empty());
+        when(basketItemService.deleteBasketItemForId(basketId)).thenReturn(Mono.empty());
 
         Mono<Basket> basketMono = basketService.reduceNumberOfProductsInBasket(basket.getId(), productId, numberOfProducts);
 
@@ -177,6 +178,9 @@ class BasketServiceImplTest {
         int numberOfProducts = 2;
         Long productId = 1l;
         Basket basket = mockSuccessfullyGetBasketForId();
+        Long basketId = basket.getBasketItemForProductId(productId).getBasketId();
+
+        when(basketItemService.deleteBasketItemForId(basketId)).thenReturn(Mono.empty());
 
         Mono<Basket> basketMono = basketService.reduceNumberOfProductsInBasket(basket.getId(), productId, numberOfProducts);
 
@@ -193,7 +197,7 @@ class BasketServiceImplTest {
         basket.getBasketItemForProductId(productId).setProductCount(3);
 
         BasketItem updatedBasketItem = BasketItem.builder().productCount(1).build();
-        when(basketItemService.reduceNumberOfProducts(any(), anyInt())).thenReturn(updatedBasketItem);
+        when(basketItemService.reduceNumberOfProducts(any(), anyInt())).thenReturn(Mono.just(updatedBasketItem));
 
         Mono<Basket> basketMono = basketService.reduceNumberOfProductsInBasket(basket.getId(), productId, numberOfProducts);
 
