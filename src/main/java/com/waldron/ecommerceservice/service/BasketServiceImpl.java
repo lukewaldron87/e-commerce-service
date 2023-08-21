@@ -81,9 +81,15 @@ public class BasketServiceImpl implements BasketService{
                     BasketItem basketItem = basket.getBasketItemForProductId(productId.get());
                     basketItem.setBasketId(basket.getId());
                     //update basketItem
-                    basketItemService.updatedBasketItem(basketItem).subscribe();
-                    return basket;
-                });
+                    //todo how to return subscription to this operation and then return the basket
+                    return basketItemService.updatedBasketItem(basketItem)
+                            .zipWith(Mono.just(basket));
+                })
+                .flatMap(tuple2Mono -> tuple2Mono)
+                .map(tuple2 -> tuple2.getT2());
+
+
+
 
 
 
@@ -100,7 +106,6 @@ public class BasketServiceImpl implements BasketService{
     }
 
     private Mono<BasketItem> createBasketItem(Mono<BasketItemDto> basketItemDtoMono, Basket basket) {
-        //todo refactor to functional/reactive solution
 
         return basketItemDtoMono.map(basketDto -> {
             return BasketItem.builder()
