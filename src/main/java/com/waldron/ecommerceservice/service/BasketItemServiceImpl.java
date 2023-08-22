@@ -77,7 +77,6 @@ public class BasketItemServiceImpl implements BasketItemService {
 
     @Override
     public Mono<BasketItem> updatedBasketItem(BasketItem updatedBasketItem) {
-        //todo refactor to reactive solution
         return basketItemRepository.save(updatedBasketItem);
     }
 
