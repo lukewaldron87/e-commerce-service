@@ -143,6 +143,7 @@ class OrderServiceImplTest {
         when(basketService.getBasketForId(basketId)).thenReturn(Mono.just(Basket.builder().build()));
         when(orderRepository.save(any(Order.class))).thenReturn(Mono.just(newOrder));
         when(orderItemService.createOrderItem(any(OrderItem.class))).thenReturn(Mono.just(OrderItem.builder().build()));
+        when(basketService.deleteBasketForId(basketId)).thenReturn(Mono.empty());
 
         StepVerifier.create(orderService.createOrderFromBasket(orderDto))
                 .expectNext(newOrder)
@@ -202,8 +203,11 @@ class OrderServiceImplTest {
         when(basketService.getBasketForId(basketId)).thenReturn(Mono.just(basket));
         when(orderRepository.save(newOrder)).thenReturn(Mono.just(newOrder));
         when(orderItemService.createOrderItem(any(OrderItem.class))).thenReturn(Mono.just(OrderItem.builder().build()));
+        when(basketService.deleteBasketForId(basketId)).thenReturn(Mono.empty());
 
-        orderService.createOrderFromBasket(orderDto);
+        StepVerifier.create(orderService.createOrderFromBasket(orderDto))
+                .expectNext(newOrder)
+                .verifyComplete();
 
         ArgumentCaptor<Basket> basketCaptor = ArgumentCaptor.forClass(Basket.class);
         ArgumentCaptor<Order> orderCaptor = ArgumentCaptor.forClass(Order.class);
@@ -231,10 +235,11 @@ class OrderServiceImplTest {
         when(basketService.getBasketForId(basketId)).thenReturn(Mono.just(basket));
         when(orderRepository.save(newOrder)).thenReturn(Mono.just(newOrder));
         when(orderItemService.createOrderItem(any(OrderItem.class))).thenReturn(Mono.just(OrderItem.builder().build()));
+        when(basketService.deleteBasketForId(basketId)).thenReturn(Mono.empty());
 
-        orderService.createOrderFromBasket(orderDto);
-
-        assertEquals(Status.PREPARING, newOrder.getStatus());
+        StepVerifier.create(orderService.createOrderFromBasket(orderDto))
+                .assertNext(createdOrder -> assertEquals(Status.PREPARING, createdOrder.getStatus()))
+                .verifyComplete();
 
     }
 
@@ -254,11 +259,14 @@ class OrderServiceImplTest {
                 .build();
 
         when(orderMapperService.mapDtoToNewEntity(orderDto)).thenReturn(newOrder);
-        when(basketService.getBasketForId(basketId)).thenReturn(Mono.just(basket));
         when(orderRepository.save(newOrder)).thenReturn(Mono.just(newOrder));
+        when(basketService.getBasketForId(basketId)).thenReturn(Mono.just(basket));
         when(orderItemService.createOrderItem(any(OrderItem.class))).thenReturn(Mono.just(OrderItem.builder().build()));
+        when(basketService.deleteBasketForId(basketId)).thenReturn(Mono.empty());
 
-        orderService.createOrderFromBasket(orderDto);
+        StepVerifier.create(orderService.createOrderFromBasket(orderDto))
+                .expectNext(newOrder)
+                .verifyComplete();
 
         ArgumentCaptor<Order> orderCaptor = ArgumentCaptor.forClass(Order.class);
         verify(orderRepository, times(1)).save(orderCaptor.capture());
@@ -286,6 +294,7 @@ class OrderServiceImplTest {
         when(basketService.getBasketForId(basketId)).thenReturn(Mono.just(basket));
         when(orderRepository.save(newOrder)).thenReturn(Mono.just(newOrder));
         when(orderItemService.createOrderItem(any(OrderItem.class))).thenReturn(Mono.just(OrderItem.builder().build()));
+        when(basketService.deleteBasketForId(basketId)).thenReturn(Mono.empty());
 
         StepVerifier.create(orderService.createOrderFromBasket(orderDto))
                 .expectNext(newOrder)
@@ -315,6 +324,7 @@ class OrderServiceImplTest {
         when(basketService.getBasketForId(basketId)).thenReturn(Mono.just(basket));
         when(orderRepository.save(newOrder)).thenReturn(Mono.just(newOrder));
         when(orderItemService.createOrderItem(any(OrderItem.class))).thenReturn(Mono.just(OrderItem.builder().build()));
+        when(basketService.deleteBasketForId(basketId)).thenReturn(Mono.empty());
 
         StepVerifier.create(orderService.createOrderFromBasket(orderDto))
                 .expectNext(newOrder)

@@ -1,16 +1,17 @@
 package com.waldron.ecommerceservice.service;
 
 import com.waldron.ecommerceservice.dto.OrderDto;
-import com.waldron.ecommerceservice.entity.Basket;
 import com.waldron.ecommerceservice.entity.Order;
 import com.waldron.ecommerceservice.entity.Status;
 import com.waldron.ecommerceservice.exception.NotFoundException;
 import com.waldron.ecommerceservice.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 @Service
@@ -64,32 +65,41 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Mono<Order> createOrderFromBasket(OrderDto orderDto) {
 
-        //todo refactor to functional/reactive solution
+        //todo refactor to cleaner solution
 
-        Order newOrder = createNewOrder(orderDto);
+        AtomicLong basketId = new AtomicLong(orderDto.getBasketId());
 
-        Mono<Basket> basket = basketService.getBasketForId(orderDto.getBasketId());
-
-        mergeBasketWithOrder(newOrder, basket);
-
-        basket.flatMap(basketToDelete -> basketService.deleteBasketForId(basketToDelete.getId())).subscribe();
-
-        return Mono.just(newOrder);
+        return createNewOrderFromDto(orderDto)
+                .zipWith(basketService.getBasketForId(orderDto.getBasketId()))
+                .map(tuple2 -> {
+                    orderMapperService.mapBasketToOrder(tuple2.getT2(), tuple2.getT1());
+                    return tuple2.getT1();
+                })
+                .map(order -> {
+                            // create new order items
+                    return Flux.just(order.getOrderItems())
+                            .flatMap(Flux::fromIterable)
+                            .flatMap(orderItemService::createOrderItem)
+                            // delete basket
+                            .then(basketService.deleteBasketForId(basketId.get()))
+                            // return new order
+                            .thenReturn(order);
+                })
+                .flatMap(orderMono -> orderMono);
     }
 
-    private void mergeBasketWithOrder(Order newOrder, Mono<Basket> basket) {
-        // merge basket with newOrder
-        basket.doOnNext(basketToMap -> orderMapperService.mapBasketToOrder(basketToMap, newOrder)).subscribe();
-        // save orderItems
-        newOrder.getOrderItems().stream()
-                .forEach(orderItem -> orderItemService.createOrderItem(orderItem).subscribe());
-    }
-
-    private Order createNewOrder(OrderDto orderDto) {
-        Order newOrder = orderMapperService.mapDtoToNewEntity(orderDto);
-        newOrder.setStatus(Status.PREPARING);
-        Mono<Order> orderMono = orderRepository.save(newOrder);
-        orderMono.subscribe();
-        return newOrder;
+    /**
+     * map dto to entity and save new order
+     *
+     * @param orderDto
+     * @return
+     */
+    private Mono<Order> createNewOrderFromDto(OrderDto orderDto) {
+        return Mono.just(orderMapperService.mapDtoToNewEntity(orderDto))
+                .map(order -> {
+                    order.setStatus(Status.PREPARING);
+                    return order;
+                })
+                .flatMap(orderRepository::save);
     }
 }
