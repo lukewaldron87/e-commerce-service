@@ -50,17 +50,14 @@ public class BasketServiceImpl implements BasketService{
      */
     @Override
     public Mono<Basket> createBasketForProduct(Mono<BasketItemDto> basketItemDtoMono) {
-        //todo refactor to reactive solution
 
+        //todo refactor to cleaner solution
         AtomicLong productId = new AtomicLong();
-
-        //todo change to save basketItems (many) before saving basket (one)
-        //https://stackoverflow.com/questions/59986014/how-to-implement-onetomany-manytoone-and-manytomany-with-r2dbc-in-a-project-whi
 
         //create basket item
         return basketItemDtoMono
+                // map dto to entity
                 .map(basketDto -> {
-                    // map dto to entity
                     productId.set(basketDto.getProductId());
                     return BasketItem.builder()
                             .productId(basketDto.getProductId())
@@ -73,14 +70,12 @@ public class BasketServiceImpl implements BasketService{
                     basket.addBasketItemForProductId(basketItem.getProductId(), basketItem);
                     return basket;
                 })
-                // create basket
                 .map(basketRepository::save)
                 .flatMap(basketMono -> basketMono)
                 // add basketId to BasketItem and update
                 .map(basket -> {
                     BasketItem basketItem = basket.getBasketItemForProductId(productId.get());
                     basketItem.setBasketId(basket.getId());
-                    //update basketItem
                     //todo how to return subscription to this operation and then return the basket
                     return basketItemService.updatedBasketItem(basketItem)
                             .zipWith(Mono.just(basket));
@@ -88,31 +83,6 @@ public class BasketServiceImpl implements BasketService{
                 .flatMap(tuple2Mono -> tuple2Mono)
                 .map(tuple2 -> tuple2.getT2());
 
-
-
-
-
-
-//        Basket basket = createBasket();
-//        Mono<BasketItem> basketItemMono = createBasketItem(basketDto, basket);
-//        basketItemMono.subscribe(basketItem -> basket.addBasketItemForProductId(basketItem.getProductId(), basketItem));
-//        return Mono.just(basket);
-    }
-
-    private Basket createBasket() {
-        Basket basket = Basket.builder().build();
-        basketRepository.save(basket).subscribe();
-        return basket;
-    }
-
-    private Mono<BasketItem> createBasketItem(Mono<BasketItemDto> basketItemDtoMono, Basket basket) {
-
-        return basketItemDtoMono.map(basketDto -> {
-            return BasketItem.builder()
-                    .productId(basketDto.getProductId())
-                    .productCount(basketDto.getProductCount())
-                    .basketId(basket.getId()).build();
-        }).flatMap(basketItem -> basketItemService.createBasketItem(basketItem));
     }
 
     /**
@@ -125,7 +95,6 @@ public class BasketServiceImpl implements BasketService{
      */
     @Override
     public Mono<Basket> addNumberOfProductsToBasket(Long basketId, Long productId, int numberOfProducts) {
-        // regression tested
         return getBasketForId(basketId)
                 .flatMap(basket -> basket.isProductInBasket(productId)
                         ? incrementProductCount(productId, numberOfProducts, basket)
@@ -173,7 +142,6 @@ public class BasketServiceImpl implements BasketService{
      */
     @Override
     public Mono<Basket> reduceNumberOfProductsInBasket(Long basketId, Long productId, int numberOfProducts) {
-        //regression tested
         return getBasketForId(basketId)
                 .flatMap(basket ->
                         shouldRemoveProduct(productId, numberOfProducts, basket)
