@@ -30,12 +30,8 @@ public class OrderItemServiceImpl implements OrderItemService{
     @Override
     public Flux<OrderItem> getOrderItemsForOrderId(Long orderId) {
         return orderItemRepository.findByOrderId(orderId)
-                .flatMap(orderItem -> {
-                    if (orderItem.getProductId() == null) {
-                        return Mono.just(orderItem);
-                    }
-                    return addProductToOrderItem(orderItem);
-                });
+                .switchIfEmpty(Mono.error(new NotFoundException("Order Item not found")))
+                .flatMap(this::addProductToOrderItem);
     }
 
     //todo change to use getProduct from productService

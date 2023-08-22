@@ -3,6 +3,7 @@ package com.waldron.ecommerceservice.service;
 import com.waldron.ecommerceservice.entity.BasketItem;
 import com.waldron.ecommerceservice.entity.OrderItem;
 import com.waldron.ecommerceservice.entity.Product;
+import com.waldron.ecommerceservice.exception.NotFoundException;
 import com.waldron.ecommerceservice.repository.OrderItemRepository;
 import com.waldron.ecommerceservice.repository.ProductRepository;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,7 @@ import reactor.test.StepVerifier;
 import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -37,15 +39,28 @@ class OrderItemServiceImplTest {
 
         Long orderId = 1l;
 
-        OrderItem orderItem1 = OrderItem.builder().build();
-        OrderItem orderItem2 = OrderItem.builder().build();
+        OrderItem orderItem1 = OrderItem.builder().productId(1l).build();
+        OrderItem orderItem2 = OrderItem.builder().productId(1l).build();
 
         when(orderItemRepository.findByOrderId(orderId)).thenReturn(Flux.just(orderItem1, orderItem2));
+        when(productRepository.findById(anyLong())).thenReturn(Mono.just(Product.builder().build()));
 
         StepVerifier.create(orderItemService.getOrderItemsForOrderId(orderId))
                 .expectNext(orderItem1)
                 .expectNext(orderItem2)
                 .verifyComplete();
+    }
+
+    @Test
+    public void getOrderItemsForOrderId_shouldReturnNotFoundException_WhenOrderItemDoesNotExist(){
+
+        Long orderId = 1l;
+
+        when(orderItemRepository.findByOrderId(orderId)).thenReturn(Flux.empty());
+
+        StepVerifier.create(orderItemService.getOrderItemsForOrderId(orderId))
+                .expectError(NotFoundException.class)
+                .verify();
     }
 
     @Test
