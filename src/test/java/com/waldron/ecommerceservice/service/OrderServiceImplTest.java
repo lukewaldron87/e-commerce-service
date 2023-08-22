@@ -2,6 +2,7 @@ package com.waldron.ecommerceservice.service;
 
 import com.waldron.ecommerceservice.entity.*;
 import com.waldron.ecommerceservice.dto.OrderDto;
+import com.waldron.ecommerceservice.exception.NotFoundException;
 import com.waldron.ecommerceservice.repository.OrderRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -39,14 +40,14 @@ class OrderServiceImplTest {
     @InjectMocks
     private OrderServiceImpl orderService;
 
-    //todo fix tests
-    /*@Test
+    @Test
     public void getOrderForId_shouldGetOrderForGivenId(){
 
         Long orderId = 1l;
         Order expectedOrder = Order.builder().id(orderId).build();
 
         when(orderRepository.findById(orderId)).thenReturn(Mono.just(expectedOrder));
+        when(orderItemService.getOrderItemsForOrderId(anyLong())).thenReturn(Flux.just(OrderItem.builder().build()));
 
         StepVerifier.create(orderService.getOrderForId(orderId))
                 .expectNext(expectedOrder)
@@ -62,7 +63,7 @@ class OrderServiceImplTest {
         StepVerifier.create(orderService.getOrderForId(orderId))
                 .expectError(NotFoundException.class)
                 .verify();
-    }*/
+    }
 
     @Test void getOrderForId_shouldAddOrderItemsToOrder(){
 
